@@ -114,25 +114,19 @@ async function caricaNotizie() {
       return;
     }
 
-    const campoData = notizie[0].data || notizie[0].dataPubblicazione;
-    if (campoData) {
-      notizie.sort((a, b) => (b.data || b.dataPubblicazione || "").localeCompare(a.data || a.dataPubblicazione || ""));
-    }
+    // Ordino dalla più recente usando il timestamp
+    notizie.sort((a, b) => Number(b.ts || 0) - Number(a.ts || 0));
 
-    ultimeNotizieDiv.innerHTML = notizie.slice(0, 5).map(n => {
-      const titolo = n.titolo || n.title || "Notizia";
-      const testo = n.testo || n.contenuto || n.descrizione || "";
-      const data = n.data || n.dataPubblicazione;
-      return `
-        <div class="allenamento-card">
-          <div class="data-riga">
-            <h3>${titolo}</h3>
-            ${data ? `<span class="tag-cat">${formattaData(data)}</span>` : ""}
-          </div>
-          ${testo ? `<p style="font-size:0.9rem; color:var(--testo-chiaro);">${testo}</p>` : ""}
+    ultimeNotizieDiv.innerHTML = notizie.slice(0, 5).map(n => `
+      <div class="allenamento-card">
+        <div class="data-riga">
+          <h3>${n.titolo || "Notizia"}</h3>
+          <span class="tag-cat">${n.data || ""}</span>
         </div>
-      `;
-    }).join("");
+        ${n.body ? `<p style="font-size:0.9rem; color:var(--testo-chiaro);">${n.body}</p>` : ""}
+        ${n.autore ? `<p style="font-size:0.8rem; color:var(--testo-chiaro); margin-top:6px; text-align:right;">— ${n.autore}</p>` : ""}
+      </div>
+    `).join("");
   } catch (err) {
     console.error(err);
     ultimeNotizieDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
