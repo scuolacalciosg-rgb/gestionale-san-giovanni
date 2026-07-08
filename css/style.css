@@ -387,6 +387,38 @@ body {
   color: var(--testo-chiaro);
 }
 
+/* ---------- FORM ESERCIZI DINAMICO ---------- */
+.esercizio-form-riga {
+  display: grid;
+  grid-template-columns: 2fr 1.2fr 0.8fr auto;
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.esercizio-form-riga input,
+.esercizio-form-riga select {
+  padding: 8px;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.esercizio-form-riga .btn-rimuovi {
+  background: none;
+  border: none;
+  color: var(--rosso);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+}
+
+@media (max-width: 600px) {
+  .esercizio-form-riga {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 @media (max-width: 600px) {
   .app-header {
     flex-direction: column;
