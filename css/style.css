@@ -3,14 +3,14 @@
    ============================================ */
 
 :root {
-  --verde: #1e7d32;
-  --verde-scuro: #145a24;
-  --grigio-sfondo: #f4f6f5;
+  --verde: #1a1a1a;
+  --verde-scuro: #333333;
+  --grigio-sfondo: #dcdcd7;
   --bianco: #ffffff;
   --testo: #1c1c1c;
   --testo-chiaro: #6b6b6b;
-  --bordo: #e0e0e0;
-  --rosso: #c0392b;
+  --bordo: #d0d0cb;
+  --rosso: #d6362e;
   --ombra: 0 2px 8px rgba(0,0,0,0.08);
 }
 
@@ -32,7 +32,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-scuro) 100%);
+  background: var(--verde);
 }
 
 .login-box {
@@ -43,6 +43,13 @@ body {
   width: 100%;
   max-width: 360px;
   text-align: center;
+  border-top: 4px solid var(--rosso);
+}
+
+.login-box .stemma {
+  height: 80px;
+  width: auto;
+  margin-bottom: 16px;
 }
 
 .login-box h1 {
@@ -94,12 +101,24 @@ body {
 .app-header {
   background-color: var(--verde);
   color: white;
-  padding: 16px 24px;
+  padding: 12px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 10px;
+  border-bottom: 3px solid var(--rosso);
+}
+
+.app-header .brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header .brand img {
+  height: 42px;
+  width: auto;
 }
 
 .app-header h1 {
@@ -160,6 +179,7 @@ body {
   padding: 20px;
   box-shadow: var(--ombra);
   text-align: center;
+  border-left: 3px solid var(--rosso);
 }
 
 .card .numero {
