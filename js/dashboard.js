@@ -4,58 +4,80 @@ import { db, ref, get } from "./firebase-config.js";
 await proteggiPagina();
 collegaLogout();
 
-const cardsGrid = document.getElementById("cardsGrid");
+const visiteScadenzaDiv = document.getElementById("visiteScadenza");
 const prossimoAllenamentoDiv = document.getElementById("prossimoAllenamento");
+const ultimeNotizieDiv = document.getElementById("ultimeNotizie");
 
 function formattaData(dataStr) {
+  if (!dataStr) return "-";
   const [anno, mese, giorno] = dataStr.split("-");
   return `${giorno}/${mese}/${anno}`;
 }
 
-async function caricaDashboard() {
+// ============================================
+// VISITE MEDICHE IN SCADENZA
+// ============================================
+async function caricaVisiteScadenza() {
   try {
-    // ---- Carico giocatori ----
-    const playersSnap = await get(ref(db, "players"));
-    const players = playersSnap.exists() ? Object.values(playersSnap.val()) : [];
+    const snap = await get(ref(db, "players"));
+    const players = snap.exists() ? Object.values(snap.val()) : [];
 
-    const totaleGiocatori = players.length;
-    const disponibili = players.filter(p => p.stato === "Disponibile").length;
-    const infortunati = players.filter(p => p.stato === "Infortunato").length;
+    const oggi = new Date().toISOString().split("T")[0];
+    const tra30gg = new Date();
+    tra30gg.setDate(tra30gg.getDate() + 30);
+    const tra30ggStr = tra30gg.toISOString().split("T")[0];
 
-    // ---- Carico allenamenti ----
-    const trainingsSnap = await get(ref(db, "trainings"));
-    const trainings = trainingsSnap.exists() ? Object.values(trainingsSnap.val()) : [];
+    const inScadenza = players
+      .filter(p => p.visita && p.visita <= tra30ggStr)
+      .sort((a, b) => a.visita.localeCompare(b.visita));
+
+    if (inScadenza.length === 0) {
+      visiteScadenzaDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna visita medica in scadenza nei prossimi 30 giorni. ✅</p>`;
+      return;
+    }
+
+    visiteScadenzaDiv.innerHTML = inScadenza.map(p => {
+      const scaduta = p.visita < oggi;
+      return `
+        <div class="allenamento-card" style="border-left:4px solid ${scaduta ? "var(--rosso)" : "#e6a700"}; display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <strong>${p.nome || "Giocatore"}</strong>
+            <div style="font-size:0.85rem; color:var(--testo-chiaro);">${p.ruolo || "-"}</div>
+          </div>
+          <span class="tag-cat" style="color:${scaduta ? "var(--rosso)" : "#a67c00"};">
+            ${scaduta ? "Scaduta il" : "Scade il"} ${formattaData(p.visita)}
+          </span>
+        </div>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error(err);
+    visiteScadenzaDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
+  }
+}
+
+// ============================================
+// PROSSIMI 3 ALLENAMENTI
+// ============================================
+async function caricaProssimiAllenamenti() {
+  try {
+    const snap = await get(ref(db, "trainings"));
+    const trainings = snap.exists() ? Object.values(snap.val()) : [];
 
     const oggi = new Date().toISOString().split("T")[0];
     const futuri = trainings
       .filter(t => t.data >= oggi)
-      .sort((a, b) => a.data.localeCompare(b.data));
+      .sort((a, b) => a.data.localeCompare(b.data))
+      .slice(0, 3);
 
-    // ---- Renderizzo le card numeriche ----
-    cardsGrid.innerHTML = `
-      <div class="card">
-        <div class="numero">${totaleGiocatori}</div>
-        <div class="etichetta">Giocatori totali</div>
-      </div>
-      <div class="card">
-        <div class="numero">${disponibili}</div>
-        <div class="etichetta">Disponibili</div>
-      </div>
-      <div class="card">
-        <div class="numero">${infortunati}</div>
-        <div class="etichetta">Infortunati</div>
-      </div>
-      <div class="card">
-        <div class="numero">${trainings.length}</div>
-        <div class="etichetta">Allenamenti totali</div>
-      </div>
-    `;
+    if (futuri.length === 0) {
+      prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessun allenamento futuro in programma.</p>`;
+      return;
+    }
 
-    // ---- Renderizzo il prossimo allenamento ----
-    if (futuri.length > 0) {
-      const prox = futuri[0];
-      const durataTotale = (prox.esercizi || []).reduce((somma, e) => somma + Number(e.dur || 0), 0);
-      prossimoAllenamentoDiv.innerHTML = `
+    prossimoAllenamentoDiv.innerHTML = futuri.map(prox => {
+      const durataTotale = (prox.esercizi || []).reduce((s, e) => s + Number(e.dur || 0), 0);
+      return `
         <div class="allenamento-card">
           <div class="data-riga">
             <h3>${prox.titolo || "Allenamento"}</h3>
@@ -72,14 +94,51 @@ async function caricaDashboard() {
           `).join("")}
         </div>
       `;
-    } else {
-      prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessun allenamento futuro in programma.</p>`;
-    }
-
+    }).join("");
   } catch (err) {
     console.error(err);
-    cardsGrid.innerHTML = `<p style="color:var(--rosso);">Errore nel caricamento dei dati: ${err.message}</p>`;
+    prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
   }
 }
 
-caricaDashboard();
+// ============================================
+// ULTIME NOTIZIE
+// ============================================
+async function caricaNotizie() {
+  try {
+    const snap = await get(ref(db, "news"));
+    const notizie = snap.exists() ? Object.values(snap.val()) : [];
+
+    if (notizie.length === 0) {
+      ultimeNotizieDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna notizia pubblicata.</p>`;
+      return;
+    }
+
+    const campoData = notizie[0].data || notizie[0].dataPubblicazione;
+    if (campoData) {
+      notizie.sort((a, b) => (b.data || b.dataPubblicazione || "").localeCompare(a.data || a.dataPubblicazione || ""));
+    }
+
+    ultimeNotizieDiv.innerHTML = notizie.slice(0, 5).map(n => {
+      const titolo = n.titolo || n.title || "Notizia";
+      const testo = n.testo || n.contenuto || n.descrizione || "";
+      const data = n.data || n.dataPubblicazione;
+      return `
+        <div class="allenamento-card">
+          <div class="data-riga">
+            <h3>${titolo}</h3>
+            ${data ? `<span class="tag-cat">${formattaData(data)}</span>` : ""}
+          </div>
+          ${testo ? `<p style="font-size:0.9rem; color:var(--testo-chiaro);">${testo}</p>` : ""}
+        </div>
+      `;
+    }).join("");
+  } catch (err) {
+    console.error(err);
+    ultimeNotizieDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
+  }
+}
+
+caricaVisiteScadenza();
+caricaProssimiAllenamenti();
+caricaNotizie();
