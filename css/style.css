@@ -1,0 +1,395 @@
+/* ============================================
+   STILE GENERALE - Gestionale San Giovanni
+   ============================================ */
+
+:root {
+  --verde: #1e7d32;
+  --verde-scuro: #145a24;
+  --grigio-sfondo: #f4f6f5;
+  --bianco: #ffffff;
+  --testo: #1c1c1c;
+  --testo-chiaro: #6b6b6b;
+  --bordo: #e0e0e0;
+  --rosso: #c0392b;
+  --ombra: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: var(--grigio-sfondo);
+  color: var(--testo);
+}
+
+/* ---------- LOGIN ---------- */
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--verde) 0%, var(--verde-scuro) 100%);
+}
+
+.login-box {
+  background: var(--bianco);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: var(--ombra);
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+}
+
+.login-box h1 {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+  color: var(--verde-scuro);
+}
+
+.login-box p.subtitle {
+  color: var(--testo-chiaro);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.login-box input {
+  width: 100%;
+  padding: 12px 14px;
+  margin-bottom: 14px;
+  border: 1px solid var(--bordo);
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.login-box button {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--verde);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.login-box button:hover {
+  background-color: var(--verde-scuro);
+}
+
+.error-msg {
+  color: var(--rosso);
+  font-size: 0.85rem;
+  margin-top: 10px;
+  min-height: 18px;
+}
+
+/* ---------- LAYOUT GENERALE APP ---------- */
+.app-header {
+  background-color: var(--verde);
+  color: white;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.app-header h1 {
+  font-size: 1.2rem;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.app-header nav a {
+  color: white;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.app-header nav a:hover,
+.app-header nav a.active {
+  background-color: rgba(255,255,255,0.2);
+}
+
+.logout-btn {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.5);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.logout-btn:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* ---------- CARDS / DASHBOARD ---------- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.card {
+  background: var(--bianco);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: var(--ombra);
+  text-align: center;
+}
+
+.card .numero {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--verde);
+}
+
+.card .etichetta {
+  color: var(--testo-chiaro);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+/* ---------- TABELLE / LISTE ---------- */
+.section-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 24px 0 12px 0;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.section-title h2 {
+  font-size: 1.1rem;
+  color: var(--verde-scuro);
+}
+
+.btn-primary {
+  background-color: var(--verde);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: var(--verde-scuro);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--verde-scuro);
+  border: 1px solid var(--verde);
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-danger {
+  background-color: transparent;
+  color: var(--rosso);
+  border: 1px solid var(--rosso);
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.lista-giocatori {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.giocatore-card {
+  background: var(--bianco);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--ombra);
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.giocatore-card:hover {
+  transform: translateY(-3px);
+}
+
+.giocatore-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  background: var(--bordo);
+}
+
+.giocatore-card .info {
+  padding: 12px;
+}
+
+.giocatore-card .info h3 {
+  font-size: 1rem;
+  margin-bottom: 2px;
+}
+
+.giocatore-card .info .ruolo {
+  font-size: 0.8rem;
+  color: var(--testo-chiaro);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.badge.disponibile { background: #e3f5e6; color: #1e7d32; }
+.badge.infortunato { background: #fdeaea; color: #c0392b; }
+.badge.indisponibile { background: #f0f0f0; color: #666; }
+.badge.recuperato { background: #eaf2fd; color: #1c5aa8; }
+.badge.convocato { background: #fff6e0; color: #a67c00; }
+
+.allenamento-card {
+  background: var(--bianco);
+  border-radius: 10px;
+  box-shadow: var(--ombra);
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+.allenamento-card .data-riga {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.allenamento-card .data-riga h3 {
+  color: var(--verde-scuro);
+}
+
+.esercizio-riga {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--bordo);
+  font-size: 0.9rem;
+}
+
+.esercizio-riga:last-child {
+  border-bottom: none;
+}
+
+.tag-cat {
+  background: var(--grigio-sfondo);
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--testo-chiaro);
+}
+
+/* ---------- MODALE ---------- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.overlay.attivo {
+  display: flex;
+}
+
+.modale {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modale h2 {
+  margin-bottom: 16px;
+  color: var(--verde-scuro);
+}
+
+.campo {
+  margin-bottom: 14px;
+}
+
+.campo label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: var(--testo-chiaro);
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--bordo);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+}
+
+.modale-azioni {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.loading {
+  text-align: center;
+  padding: 40px;
+  color: var(--testo-chiaro);
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

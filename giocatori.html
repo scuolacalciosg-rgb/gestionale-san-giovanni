@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giocatori - Gestionale San Giovanni</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="app-header">
+    <h1>⚽ Gestionale San Giovanni</h1>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="giocatori.html" class="active">Giocatori</a>
+      <a href="allenamenti.html">Allenamenti</a>
+    </nav>
+    <button class="logout-btn" id="btnLogout">Esci</button>
+  </header>
+
+  <div class="container">
+    <div class="section-title">
+      <h2>Elenco Giocatori</h2>
+      <button class="btn-primary" id="btnNuovoGiocatore">+ Nuovo giocatore</button>
+    </div>
+
+    <div class="lista-giocatori" id="listaGiocatori">
+      <div class="loading">Caricamento giocatori...</div>
+    </div>
+  </div>
+
+  <!-- ===== MODALE SCHEDA GIOCATORE ===== -->
+  <div class="overlay" id="overlayGiocatore">
+    <div class="modale">
+      <h2 id="modaleTitolo">Scheda giocatore</h2>
+
+      <div class="campo" style="text-align:center;">
+        <img id="previewFoto" src="" alt="Foto giocatore"
+             style="width:120px;height:120px;border-radius:50%;object-fit:cover;background:#eee;display:block;margin:0 auto 10px auto;">
+        <input type="file" id="inputFoto" accept="image/*" capture="environment">
+      </div>
+
+      <div class="campo">
+        <label>Nome e cognome</label>
+        <input type="text" id="campoNome" placeholder="Es. Mario Rossi">
+      </div>
+
+      <div class="campo">
+        <label>Numero di maglia</label>
+        <input type="text" id="campoNumero" placeholder="Es. 7">
+      </div>
+
+      <div class="campo">
+        <label>Ruolo</label>
+        <select id="campoRuolo">
+          <option value="Portiere">Portiere</option>
+          <option value="Difensore">Difensore</option>
+          <option value="Centrocampista">Centrocampista</option>
+          <option value="Attaccante">Attaccante</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Data di nascita</label>
+        <input type="date" id="campoDataNascita">
+      </div>
+
+      <div class="campo">
+        <label>Anno categoria</label>
+        <input type="text" id="campoAnno" placeholder="Es. 2019">
+      </div>
+
+      <div class="campo">
+        <label>Categoria</label>
+        <input type="text" id="campoCategoria" placeholder="Es. Piccoli Amici">
+      </div>
+
+      <div class="campo">
+        <label>Stato</label>
+        <select id="campoStato">
+          <option value="Disponibile">Disponibile</option>
+          <option value="Infortunato">Infortunato</option>
+          <option value="Indisponibile">Indisponibile</option>
+          <option value="Recuperato">Recuperato</option>
+          <option value="Convocato">Convocato</option>
+        </select>
+      </div>
+
+      <div class="campo">
+        <label>Genitore di riferimento</label>
+        <input type="text" id="campoGenitore" placeholder="Es. Michele">
+      </div>
+
+      <div class="campo">
+        <label>Contatto telefonico</label>
+        <input type="text" id="campoContatto" placeholder="Es. 3469493065">
+      </div>
+
+      <div class="campo">
+        <label>Indirizzo</label>
+        <input type="text" id="campoIndirizzo" placeholder="Es. St. Guardiella 1">
+      </div>
+
+      <div class="campo">
+        <label>Scadenza visita medica</label>
+        <input type="date" id="campoVisita">
+      </div>
+
+      <div class="campo">
+        <label>Gol</label>
+        <input type="number" id="campoGol" value="0">
+      </div>
+
+      <div class="campo">
+        <label>Assist</label>
+        <input type="number" id="campoAssist" value="0">
+      </div>
+
+      <div class="modale-azioni">
+        <button class="btn-danger" id="btnEliminaGiocatore" style="display:none;">Elimina</button>
+        <button class="btn-secondary" id="btnAnnullaGiocatore">Annulla</button>
+        <button class="btn-primary" id="btnSalvaGiocatore">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/giocatori.js"></script>
+</body>
+</html>
