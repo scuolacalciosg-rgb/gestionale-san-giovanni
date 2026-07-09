@@ -13,14 +13,78 @@ const btnSalvaAllenamento = document.getElementById("btnSalvaAllenamento");
 const btnEliminaAllenamento = document.getElementById("btnEliminaAllenamento");
 const listaEserciziForm = document.getElementById("listaEserciziForm");
 const btnAggiungiEsercizio = document.getElementById("btnAggiungiEsercizio");
+const selCategoriaLibreria = document.getElementById("selCategoriaLibreria");
+const selEsercizioLibreria = document.getElementById("selEsercizioLibreria");
+const descEsercizioLibreria = document.getElementById("descEsercizioLibreria");
+const btnAggiungiDaLibreria = document.getElementById("btnAggiungiDaLibreria");
 
 let allenamentiCache = {};
+let eserciziLibreria = {}; // id -> {nome, cat, dur, desc, ...}
 let idAllenamentoCorrente = null;
 
 const CATEGORIE_ESERCIZIO = ["Riscaldamento", "Velocità", "Coordinativo", "Passaggi", "Conduzione", "Tiro", "Situazioni"];
 
 // ============================================
-// CARICAMENTO E RENDER LISTA
+// CARICAMENTO LIBRERIA ESERCIZI (per il selettore a cascata)
+// ============================================
+async function caricaLibreriaEsercizi() {
+  try {
+    const snap = await get(ref(db, "exercises"));
+    eserciziLibreria = snap.exists() ? snap.val() : {};
+
+    // Popolo il menu categorie solo con quelle effettivamente presenti in libreria
+    const categoriePresenti = [...new Set(Object.values(eserciziLibreria).map(e => e.cat).filter(Boolean))];
+    const categorieOrdinate = [
+      ...CATEGORIE_ESERCIZIO.filter(c => categoriePresenti.includes(c)),
+      ...categoriePresenti.filter(c => !CATEGORIE_ESERCIZIO.includes(c))
+    ];
+    selCategoriaLibreria.innerHTML = `<option value="">Categoria...</option>` +
+      categorieOrdinate.map(c => `<option value="${c}">${c}</option>`).join("");
+  } catch (err) {
+    console.error("Errore caricamento libreria esercizi:", err);
+  }
+}
+
+selCategoriaLibreria.addEventListener("change", () => {
+  const cat = selCategoriaLibreria.value;
+  descEsercizioLibreria.textContent = "";
+
+  if (!cat) {
+    selEsercizioLibreria.innerHTML = `<option value="">Scegli prima la categoria</option>`;
+    selEsercizioLibreria.disabled = true;
+    return;
+  }
+
+  const idsCat = Object.keys(eserciziLibreria)
+    .filter(id => eserciziLibreria[id].cat === cat)
+    .sort((a, b) => (eserciziLibreria[a].nome || "").localeCompare(eserciziLibreria[b].nome || ""));
+
+  selEsercizioLibreria.innerHTML = `<option value="">Seleziona esercizio (${idsCat.length})...</option>` +
+    idsCat.map(id => `<option value="${id}">${eserciziLibreria[id].nome}</option>`).join("");
+  selEsercizioLibreria.disabled = false;
+});
+
+selEsercizioLibreria.addEventListener("change", () => {
+  const id = selEsercizioLibreria.value;
+  descEsercizioLibreria.textContent = id ? (eserciziLibreria[id].desc || "Nessuna descrizione disponibile.") : "";
+});
+
+btnAggiungiDaLibreria.addEventListener("click", () => {
+  const id = selEsercizioLibreria.value;
+  if (!id) {
+    alert("Seleziona prima un esercizio dalla libreria.");
+    return;
+  }
+  const e = eserciziLibreria[id];
+  listaEserciziForm.appendChild(creaRigaEsercizio({ nome: e.nome, cat: e.cat, dur: e.dur }));
+
+  // Reset selettori per una nuova scelta
+  selEsercizioLibreria.value = "";
+  descEsercizioLibreria.textContent = "";
+});
+
+// ============================================
+// CARICAMENTO E RENDER LISTA ALLENAMENTI
 // ============================================
 async function caricaAllenamenti() {
   try {
@@ -129,6 +193,10 @@ function apriNuovoAllenamento() {
   document.getElementById("campoNote").value = "";
   listaEserciziForm.innerHTML = "";
   listaEserciziForm.appendChild(creaRigaEsercizio());
+  selCategoriaLibreria.value = "";
+  selEsercizioLibreria.innerHTML = `<option value="">Scegli prima la categoria</option>`;
+  selEsercizioLibreria.disabled = true;
+  descEsercizioLibreria.textContent = "";
 
   btnEliminaAllenamento.style.display = "none";
   overlayAllenamento.classList.add("attivo");
@@ -149,6 +217,10 @@ function apriModificaAllenamento(id) {
   listaEserciziForm.innerHTML = "";
   (a.esercizi || []).forEach(e => listaEserciziForm.appendChild(creaRigaEsercizio(e)));
   if ((a.esercizi || []).length === 0) listaEserciziForm.appendChild(creaRigaEsercizio());
+  selCategoriaLibreria.value = "";
+  selEsercizioLibreria.innerHTML = `<option value="">Scegli prima la categoria</option>`;
+  selEsercizioLibreria.disabled = true;
+  descEsercizioLibreria.textContent = "";
 
   btnEliminaAllenamento.style.display = "inline-block";
   overlayAllenamento.classList.add("attivo");
@@ -227,3 +299,4 @@ overlayAllenamento.addEventListener("click", (e) => {
 });
 
 caricaAllenamenti();
+caricaLibreriaEsercizi();
