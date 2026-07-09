@@ -14,6 +14,7 @@
       <a href="dashboard.html">Dashboard</a>
       <a href="giocatori.html">Giocatori</a>
       <a href="allenamenti.html" class="active">Allenamenti</a>
+      <a href="esercizi.html">Esercizi</a>
     </nav>
     <button class="logout-btn" id="btnLogout">Esci</button>
   </header>
@@ -72,9 +73,23 @@
       </div>
 
       <div class="campo">
-        <label>Esercizi</label>
+        <label>Aggiungi dalla libreria esercizi</label>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <select id="selCategoriaLibreria" style="flex:1; min-width:140px; padding:8px; border:1px solid var(--bordo); border-radius:6px;">
+            <option value="">Categoria...</option>
+          </select>
+          <select id="selEsercizioLibreria" style="flex:2; min-width:180px; padding:8px; border:1px solid var(--bordo); border-radius:6px;" disabled>
+            <option value="">Scegli prima la categoria</option>
+          </select>
+          <button type="button" class="btn-secondary" id="btnAggiungiDaLibreria">+ Aggiungi</button>
+        </div>
+        <p id="descEsercizioLibreria" style="font-size:0.85rem; color:var(--testo-chiaro); margin-top:6px; min-height:18px;"></p>
+      </div>
+
+      <div class="campo">
+        <label>Esercizi della sessione</label>
         <div id="listaEserciziForm"></div>
-        <button type="button" class="btn-secondary" id="btnAggiungiEsercizio" style="margin-top:8px;">+ Aggiungi esercizio</button>
+        <button type="button" class="btn-secondary" id="btnAggiungiEsercizio" style="margin-top:8px;">+ Aggiungi esercizio manuale</button>
       </div>
 
       <div class="modale-azioni">
