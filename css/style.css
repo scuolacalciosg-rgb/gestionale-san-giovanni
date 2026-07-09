@@ -439,6 +439,79 @@ body {
   }
 }
 
+/* ---------- LISTA ESERCIZI (compatta, raggruppata per categoria) ---------- */
+.gruppo-categoria {
+  margin-bottom: 20px;
+}
+
+.gruppo-categoria-titolo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  color: var(--verde-scuro);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border-bottom: 2px solid var(--rosso);
+  margin-bottom: 8px;
+}
+
+.gruppo-categoria-titolo .conteggio {
+  background: var(--grigio-sfondo);
+  color: var(--testo-chiaro);
+  font-size: 0.75rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.esercizio-lista-riga {
+  background: var(--bianco);
+  border: 1px solid var(--bordo);
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  cursor: pointer;
+}
+
+.esercizio-lista-riga .riga-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.esercizio-lista-riga .nome-es {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.esercizio-lista-riga .meta-es {
+  font-size: 0.8rem;
+  color: var(--testo-chiaro);
+  white-space: nowrap;
+}
+
+.esercizio-lista-riga .desc-es {
+  display: none;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--bordo);
+  font-size: 0.85rem;
+  color: var(--testo-chiaro);
+  line-height: 1.5;
+}
+
+.esercizio-lista-riga.espanso .desc-es {
+  display: block;
+}
+
+.esercizio-lista-riga .riga-azioni {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
 @media (max-width: 600px) {
   .app-header {
     flex-direction: column;
