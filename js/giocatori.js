@@ -257,3 +257,16 @@ overlayGiocatore.addEventListener("click", (e) => {
 });
 
 caricaGiocatori();
+
+// Se arrivo da un link diretto (es. dalla ricerca) con ?id=..., apro subito quella scheda
+const parametriURL = new URLSearchParams(window.location.search);
+const idDaAprire = parametriURL.get("id");
+if (idDaAprire) {
+  const attendiEApri = setInterval(() => {
+    if (giocatoriCache[idDaAprire]) {
+      clearInterval(attendiEApri);
+      apriSchedaGiocatore(idDaAprire);
+    }
+  }, 150);
+  setTimeout(() => clearInterval(attendiEApri), 5000);
+}
