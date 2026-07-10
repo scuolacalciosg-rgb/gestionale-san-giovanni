@@ -4,6 +4,7 @@ import { db, ref, get } from "./firebase-config.js";
 await proteggiPagina();
 collegaLogout();
 
+const dataOggiEl = document.getElementById("dataOggi");
 const visiteScadenzaDiv = document.getElementById("visiteScadenza");
 const prossimoAllenamentoDiv = document.getElementById("prossimoAllenamento");
 const ultimeNotizieDiv = document.getElementById("ultimeNotizie");
@@ -15,84 +16,75 @@ function formattaData(dataStr) {
 }
 
 // ============================================
-// VISITE MEDICHE IN SCADENZA
+// DATA DI OGGI (si aggiorna da sola ogni giorno)
+// ============================================
+function mostraDataOggi() {
+  const oggi = new Date();
+  const formattata = oggi.toLocaleDateString("it-IT", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+  dataOggiEl.textContent = formattata;
+}
+
+// ============================================
+// VISITE MEDICHE IN SCADENZA (avviso compatto)
 // ============================================
 async function caricaVisiteScadenza() {
   try {
     const snap = await get(ref(db, "players"));
     const players = snap.exists() ? Object.values(snap.val()) : [];
 
-    const oggi = new Date().toISOString().split("T")[0];
     const tra30gg = new Date();
     tra30gg.setDate(tra30gg.getDate() + 30);
     const tra30ggStr = tra30gg.toISOString().split("T")[0];
 
-    const inScadenza = players
-      .filter(p => p.visita && p.visita <= tra30ggStr)
-      .sort((a, b) => a.visita.localeCompare(b.visita));
+    const inScadenza = players.filter(p => p.visita && p.visita <= tra30ggStr);
 
     if (inScadenza.length === 0) {
-      visiteScadenzaDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna visita medica in scadenza nei prossimi 30 giorni. ✅</p>`;
+      visiteScadenzaDiv.innerHTML = "";
       return;
     }
 
-    visiteScadenzaDiv.innerHTML = inScadenza.map(p => {
-      const scaduta = p.visita < oggi;
-      return `
-        <div class="allenamento-card" style="border-left:4px solid ${scaduta ? "var(--rosso)" : "#e6a700"}; display:flex; justify-content:space-between; align-items:center;">
-          <div>
-            <strong>${p.nome || "Giocatore"}</strong>
-            <div style="font-size:0.85rem; color:var(--testo-chiaro);">${p.ruolo || "-"}</div>
-          </div>
-          <span class="tag-cat" style="color:${scaduta ? "var(--rosso)" : "#a67c00"};">
-            ${scaduta ? "Scaduta il" : "Scade il"} ${formattaData(p.visita)}
-          </span>
-        </div>
-      `;
-    }).join("");
+    const nomi = inScadenza.map(p => p.nome).join(", ");
+    visiteScadenzaDiv.innerHTML = `
+      <div class="avviso-scadenza">
+        ⚠️ Visite mediche in scadenza (30gg): ${nomi}
+      </div>
+    `;
   } catch (err) {
     console.error(err);
-    visiteScadenzaDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
   }
 }
 
 // ============================================
-// PROSSIMI 3 ALLENAMENTI
+// PROSSIMI 3 ALLENAMENTI (mini card cliccabili)
 // ============================================
 async function caricaProssimiAllenamenti() {
   try {
     const snap = await get(ref(db, "trainings"));
-    const trainings = snap.exists() ? Object.values(snap.val()) : [];
+    const trainings = snap.exists() ? snap.val() : {};
 
     const oggi = new Date().toISOString().split("T")[0];
-    const futuri = trainings
-      .filter(t => t.data >= oggi)
-      .sort((a, b) => a.data.localeCompare(b.data))
+    const ids = Object.keys(trainings)
+      .filter(id => trainings[id].data >= oggi)
+      .sort((a, b) => trainings[a].data.localeCompare(trainings[b].data))
       .slice(0, 3);
 
-    if (futuri.length === 0) {
+    if (ids.length === 0) {
       prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessun allenamento futuro in programma.</p>`;
       return;
     }
 
-    prossimoAllenamentoDiv.innerHTML = futuri.map(prox => {
-      const durataTotale = (prox.esercizi || []).reduce((s, e) => s + Number(e.dur || 0), 0);
+    prossimoAllenamentoDiv.innerHTML = ids.map(id => {
+      const t = trainings[id];
       return `
-        <div class="allenamento-card">
-          <div class="data-riga">
-            <h3>${prox.titolo || "Allenamento"}</h3>
-            <span class="tag-cat">${formattaData(prox.data)} - ore ${prox.ora || "--"}</span>
-          </div>
-          <p style="margin-bottom:8px; color:var(--testo-chiaro); font-size:0.9rem;">
-            📍 ${prox.luogo || "-"} · ⏱️ ${durataTotale} min totali
-          </p>
-          ${(prox.esercizi || []).map(e => `
-            <div class="esercizio-riga">
-              <span>${e.nome}</span>
-              <span class="tag-cat">${e.cat} · ${e.dur}'</span>
-            </div>
-          `).join("")}
-        </div>
+        <a class="mini-card" href="allenamenti.html?id=${id}">
+          <h3>${t.titolo || "Allenamento"}</h3>
+          <div class="mini-meta">📅 ${formattaData(t.data)} · ore ${t.ora || "--"} · 📍 ${t.luogo || "-"}</div>
+        </a>
       `;
     }).join("");
   } catch (err) {
@@ -102,7 +94,7 @@ async function caricaProssimiAllenamenti() {
 }
 
 // ============================================
-// ULTIME NOTIZIE
+// ULTIME 3 NOTIZIE/COMUNICAZIONI (mini card)
 // ============================================
 async function caricaNotizie() {
   try {
@@ -110,21 +102,17 @@ async function caricaNotizie() {
     const notizie = snap.exists() ? Object.values(snap.val()) : [];
 
     if (notizie.length === 0) {
-      ultimeNotizieDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna notizia pubblicata.</p>`;
+      ultimeNotizieDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna comunicazione pubblicata.</p>`;
       return;
     }
 
-    // Ordino dalla più recente usando il timestamp
     notizie.sort((a, b) => Number(b.ts || 0) - Number(a.ts || 0));
 
-    ultimeNotizieDiv.innerHTML = notizie.slice(0, 5).map(n => `
-      <div class="allenamento-card">
-        <div class="data-riga">
-          <h3>${n.titolo || "Notizia"}</h3>
-          <span class="tag-cat">${n.data || ""}</span>
-        </div>
-        ${n.body ? `<p style="font-size:0.9rem; color:var(--testo-chiaro);">${n.body}</p>` : ""}
-        ${n.autore ? `<p style="font-size:0.8rem; color:var(--testo-chiaro); margin-top:6px; text-align:right;">— ${n.autore}</p>` : ""}
+    ultimeNotizieDiv.innerHTML = notizie.slice(0, 3).map(n => `
+      <div class="mini-card">
+        <h3>${n.titolo || "Comunicazione"}</h3>
+        <div class="mini-meta">${n.data || ""}${n.autore ? " · " + n.autore : ""}</div>
+        ${n.body ? `<div class="mini-testo">${n.body}</div>` : ""}
       </div>
     `).join("");
   } catch (err) {
@@ -133,6 +121,7 @@ async function caricaNotizie() {
   }
 }
 
+mostraDataOggi();
 caricaVisiteScadenza();
 caricaProssimiAllenamenti();
 caricaNotizie();
