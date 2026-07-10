@@ -512,24 +512,39 @@ body {
   gap: 8px;
 }
 
-/* ---------- DASHBOARD: TITOLO E LAYOUT A DUE COLONNE ---------- */
+/* ---------- DASHBOARD: RIQUADRO TITOLO CON STEMMA ---------- */
 .dash-titolo {
-  text-align: center;
-  padding: 20px 0 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  background: var(--verde);
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 24px;
+  border-bottom: 4px solid var(--rosso);
+  box-shadow: var(--ombra);
+}
+
+.dash-titolo-stemma {
+  height: 90px;
+  width: auto;
+  flex-shrink: 0;
 }
 
 .dash-titolo h1 {
-  font-size: 2.2rem;
-  font-weight: 800;
-  color: var(--verde);
-  letter-spacing: 1px;
+  font-size: 3rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 2px;
   margin: 0;
+  line-height: 1;
 }
 
 .dash-titolo p {
-  font-size: 0.95rem;
-  color: var(--testo-chiaro);
-  margin-top: 4px;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.75);
+  margin-top: 6px;
   text-transform: capitalize;
 }
 
@@ -542,6 +557,16 @@ body {
 
 .dash-colonna .section-title {
   margin-top: 0;
+}
+
+.dash-colonna .section-title h2 {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--verde-scuro);
+  border-bottom: 3px solid var(--rosso);
+  padding-bottom: 8px;
+  display: block;
+  width: 100%;
 }
 
 .mini-card {
@@ -597,8 +622,16 @@ body {
   .dash-colonne {
     grid-template-columns: 1fr;
   }
+  .dash-titolo {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+  }
+  .dash-titolo-stemma {
+    height: 64px;
+  }
   .dash-titolo h1 {
-    font-size: 1.6rem;
+    font-size: 2rem;
   }
 }
 
