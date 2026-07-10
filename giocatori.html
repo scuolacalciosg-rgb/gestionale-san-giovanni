@@ -8,16 +8,30 @@
 </head>
 <body>
 
-  <header class="app-header">
-    <div class="brand"><img src="assets/stemma.png" alt="Stemma San Giovanni"><h1>Gestionale San Giovanni</h1></div>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="giocatori.html" class="active">Giocatori</a>
-      <a href="allenamenti.html">Allenamenti</a>
-      <a href="esercizi.html">Esercizi</a>
+  <div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/stemma.png" alt="Stemma San Giovanni">
+      <span>Gestionale<br>San Giovanni</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="giocatori.html" class="active">👥 Giocatori</a>
+      <a href="allenamenti.html">📋 Allenamenti</a>
+      <a href="esercizi.html">🏃 Esercizi</a>
     </nav>
-    <button class="logout-btn" id="btnLogout">Esci</button>
-  </header>
+    <div class="sidebar-logout">
+      <button id="btnLogout">Esci</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-ricerca">
+        <input type="text" id="ricercaGlobale" placeholder="Cerca giocatore o allenamento...">
+        <div class="topbar-risultati" id="topbarRisultati"></div>
+      </div>
+    </div>
 
   <div class="container">
     <div class="section-title">
@@ -28,6 +42,8 @@
     <div class="lista-giocatori" id="listaGiocatori">
       <div class="loading">Caricamento giocatori...</div>
     </div>
+  </div>
+  </div>
   </div>
 
   <!-- ===== MODALE SCHEDA GIOCATORE ===== -->
@@ -125,6 +141,7 @@
     </div>
   </div>
 
+  <script type="module" src="js/search.js"></script>
   <script type="module" src="js/giocatori.js"></script>
 </body>
 </html>
