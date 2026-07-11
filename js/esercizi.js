@@ -14,6 +14,10 @@ const btnNuovoEsercizio = document.getElementById("btnNuovoEsercizio");
 const btnAnnullaEsercizio = document.getElementById("btnAnnullaEsercizio");
 const btnSalvaEsercizio = document.getElementById("btnSalvaEsercizio");
 const btnEliminaEsercizio = document.getElementById("btnEliminaEsercizio");
+const inputFotoEs = document.getElementById("inputFotoEs");
+const previewFotoEs = document.getElementById("previewFotoEs");
+
+let fotoEsBase64Corrente = "";
 
 const ORDINE_CATEGORIE = ["Riscaldamento", "Velocità", "Coordinativo", "Passaggi", "Conduzione", "Tiro", "Situazioni"];
 
@@ -81,10 +85,11 @@ function renderLista() {
           return `
             <div class="esercizio-lista-riga" data-id="${id}">
               <div class="riga-header">
-                <span class="nome-es">${e.nome || "Senza nome"}</span>
+                <span class="nome-es">${e.foto ? `<img src="${e.foto}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin-right:8px;">` : ""}${e.nome || "Senza nome"}</span>
                 <span class="meta-es">⏱️ ${e.dur || "-"}' ${e.players ? "· 👥 " + e.players : ""}</span>
               </div>
               <div class="desc-es">${e.desc || "Nessuna descrizione."}</div>
+              ${e.foto ? `<div class="desc-es"><img src="${e.foto}" style="max-width:100%; max-height:220px; border-radius:8px; object-fit:contain;"></div>` : ""}
               <div class="desc-es riga-azioni">
                 <button class="btn-secondary btn-modifica-es" data-id="${id}">Modifica</button>
               </div>
@@ -124,6 +129,10 @@ function apriNuovoEsercizio() {
   document.getElementById("campoDurEs").value = 15;
   document.getElementById("campoPlayersEs").value = "";
   document.getElementById("campoDescEs").value = "";
+  fotoEsBase64Corrente = "";
+  previewFotoEs.src = "";
+  previewFotoEs.style.display = "none";
+  inputFotoEs.value = "";
   btnEliminaEsercizio.style.display = "none";
   overlayEsercizio.classList.add("attivo");
 }
@@ -137,6 +146,15 @@ function apriModificaEsercizio(id) {
   document.getElementById("campoDurEs").value = e.dur || 15;
   document.getElementById("campoPlayersEs").value = e.players || "";
   document.getElementById("campoDescEs").value = e.desc || "";
+  fotoEsBase64Corrente = e.foto || "";
+  if (fotoEsBase64Corrente) {
+    previewFotoEs.src = fotoEsBase64Corrente;
+    previewFotoEs.style.display = "block";
+  } else {
+    previewFotoEs.src = "";
+    previewFotoEs.style.display = "none";
+  }
+  inputFotoEs.value = "";
   btnEliminaEsercizio.style.display = "inline-block";
   overlayEsercizio.classList.add("attivo");
 }
@@ -146,6 +164,39 @@ function chiudiModale() {
   idEsercizioCorrente = null;
 }
 
+// Upload e ridimensionamento immagine (max 400px di lato, per non appesantire il database)
+inputFotoEs.addEventListener("change", () => {
+  const file = inputFotoEs.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      const maxLato = 400;
+      let { width, height } = img;
+      if (width > height && width > maxLato) {
+        height = Math.round(height * (maxLato / width));
+        width = maxLato;
+      } else if (height > maxLato) {
+        width = Math.round(width * (maxLato / height));
+        height = maxLato;
+      }
+
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+
+      fotoEsBase64Corrente = canvas.toDataURL("image/jpeg", 0.75);
+      previewFotoEs.src = fotoEsBase64Corrente;
+      previewFotoEs.style.display = "block";
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
 async function salvaEsercizio() {
   const dati = {
     nome: document.getElementById("campoNomeEs").value.trim(),
@@ -153,7 +204,7 @@ async function salvaEsercizio() {
     dur: document.getElementById("campoDurEs").value.trim(),
     players: document.getElementById("campoPlayersEs").value.trim(),
     desc: document.getElementById("campoDescEs").value.trim(),
-    foto: eserciziCache[idEsercizioCorrente]?.foto || ""
+    foto: fotoEsBase64Corrente
   };
 
   if (!dati.nome) {
