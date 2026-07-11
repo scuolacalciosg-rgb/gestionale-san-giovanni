@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rapporti - Gestionale San Giovanni</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/stemma.png" alt="Stemma San Giovanni">
+      <span>Gestionale<br>San Giovanni</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="giocatori.html">👥 Giocatori</a>
+      <a href="allenamenti.html">📋 Allenamenti</a>
+      <a href="esercizi.html">🏃 Esercizi</a>
+      <a href="rapporti.html" class="active">📝 Rapporti</a>
+    </nav>
+    <div class="sidebar-logout">
+      <button id="btnLogout">Esci</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-ricerca">
+        <input type="text" id="ricercaGlobale" placeholder="Cerca giocatore o allenamento...">
+        <div class="topbar-risultati" id="topbarRisultati"></div>
+      </div>
+    </div>
+
+  <div class="container">
+    <div class="section-title">
+      <h2>Rapporti Giocatori</h2>
+      <button class="btn-primary" id="btnNuovoRapporto">+ Nuovo rapporto</button>
+    </div>
+
+    <div class="rapporti-layout">
+      <div class="rapporti-lista-giocatori" id="listaGiocatoriRapporti">
+        <div class="loading">Caricamento...</div>
+      </div>
+      <div class="rapporti-dettaglio" id="dettaglioRapporti">
+        <p style="color:var(--testo-chiaro); text-align:center; padding:40px 20px;">👈 Seleziona un giocatore per vedere i suoi rapporti</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- ===== MODALE RAPPORTO ===== -->
+  <div class="overlay" id="overlayRapporto">
+    <div class="modale" style="max-width:560px;">
+      <h2 id="modaleTitoloRapp">Nuovo rapporto</h2>
+
+      <div class="campo">
+        <label>Giocatore</label>
+        <select id="campoGiocatoreRapp"></select>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="campo" style="flex:1;">
+          <label>Data</label>
+          <input type="date" id="campoDataRapp">
+        </div>
+        <div class="campo" style="flex:1;">
+          <label>Contesto</label>
+          <input type="text" id="campoContestoRapp" placeholder="Es. Osservazione generale, Partita...">
+        </div>
+        <div class="campo" style="width:100px;">
+          <label>Voto (1-5)</label>
+          <input type="number" id="campoVotoRapp" min="1" max="5" value="3">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label>Comportamento</label>
+        <textarea id="campoComportamentoRapp" rows="3" placeholder="Comportamento in allenamento/partita..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Tecnica</label>
+        <textarea id="campoTecnicaRapp" rows="3" placeholder="Livello tecnico, punti di forza..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Da migliorare</label>
+        <textarea id="campoMigliorareRapp" rows="3" placeholder="Aspetti su cui lavorare..."></textarea>
+      </div>
+
+      <div class="campo">
+        <label>Note</label>
+        <textarea id="campoNoteRapp" rows="2" placeholder="Note aggiuntive..."></textarea>
+      </div>
+
+      <div class="modale-azioni">
+        <button class="btn-danger" id="btnEliminaRapporto" style="display:none;">Elimina</button>
+        <button class="btn-secondary" id="btnAnnullaRapporto">Annulla</button>
+        <button class="btn-primary" id="btnSalvaRapporto">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/search.js"></script>
+  <script type="module" src="js/rapporti.js"></script>
+</body>
+</html>
