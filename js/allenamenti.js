@@ -40,6 +40,9 @@ async function caricaLibreriaEsercizi() {
     ];
     selCategoriaLibreria.innerHTML = `<option value="">Categoria...</option>` +
       categorieOrdinate.map(c => `<option value="${c}">${c}</option>`).join("");
+
+    // Ri-renderizzo la lista allenamenti così i tooltip con la descrizione risultano completi
+    renderLista();
   } catch (err) {
     console.error("Errore caricamento libreria esercizi:", err);
   }
@@ -76,7 +79,7 @@ btnAggiungiDaLibreria.addEventListener("click", () => {
     return;
   }
   const e = eserciziLibreria[id];
-  listaEserciziForm.appendChild(creaRigaEsercizio({ nome: e.nome, cat: e.cat, dur: e.dur }));
+  listaEserciziForm.appendChild(creaRigaEsercizio({ nome: e.nome, cat: e.cat, dur: e.dur, desc: e.desc }));
 
   // Reset selettori per una nuova scelta
   selEsercizioLibreria.value = "";
@@ -103,6 +106,16 @@ function formattaData(dataStr) {
   return `${giorno}/${mese}/${anno}`;
 }
 
+// Recupera la descrizione di un esercizio: prima quella salvata nell'allenamento,
+// altrimenti la cerca nella libreria per nome (utile per allenamenti creati prima di questa funzione)
+function trovaDescrizioneEsercizio(nomeEsercizio, descSalvata) {
+  if (descSalvata) return descSalvata;
+  const trovato = Object.values(eserciziLibreria).find(
+    ex => (ex.nome || "").trim().toLowerCase() === (nomeEsercizio || "").trim().toLowerCase()
+  );
+  return trovato ? (trovato.desc || "") : "";
+}
+
 function renderLista() {
   const ids = Object.keys(allenamentiCache);
   if (ids.length === 0) {
@@ -110,8 +123,8 @@ function renderLista() {
     return;
   }
 
-  // Ordino dal più recente/futuro al più vecchio
-  ids.sort((a, b) => (allenamentiCache[b].data || "").localeCompare(allenamentiCache[a].data || ""));
+  // Ordino in ordine cronologico (dal più vecchio al più recente)
+  ids.sort((a, b) => (allenamentiCache[a].data || "").localeCompare(allenamentiCache[b].data || ""));
 
   const oggi = new Date().toISOString().split("T")[0];
 
@@ -130,14 +143,19 @@ function renderLista() {
           📍 ${a.luogo || "-"} · ⏱️ ${durataTotale} min · ${a.tipo || "Normale"}
         </p>
         ${a.note ? `<p style="font-size:0.85rem; color:var(--testo-chiaro); margin-bottom:8px; font-style:italic;">${a.note}</p>` : ""}
-        ${esercizi.map(e => `
-          <div class="esercizio-riga">
-            <span>${e.nome}</span>
-            <span class="tag-cat">${e.cat} · ${e.dur}'</span>
-          </div>
-        `).join("")}
+        ${esercizi.map(e => {
+          const desc = trovaDescrizioneEsercizio(e.nome, e.desc) || "Nessuna descrizione disponibile.";
+          const descAttr = desc.replace(/"/g, "&quot;").replace(/\n/g, " ");
+          return `
+            <div class="esercizio-riga" title="${descAttr}">
+              <span>${e.nome}</span>
+              <span class="tag-cat">${e.cat} · ${e.dur}'</span>
+            </div>
+          `;
+        }).join("")}
         <div style="margin-top:12px; display:flex; gap:8px;">
           <button class="btn-secondary btn-modifica" data-id="${id}">Modifica</button>
+          <button class="btn-secondary btn-stampa" data-id="${id}">🖨️ Stampa</button>
         </div>
       </div>
     `;
@@ -146,6 +164,72 @@ function renderLista() {
   listaAllenamenti.querySelectorAll(".btn-modifica").forEach(btn => {
     btn.addEventListener("click", () => apriModificaAllenamento(btn.dataset.id));
   });
+
+  listaAllenamenti.querySelectorAll(".btn-stampa").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      stampaAllenamento(btn.dataset.id);
+    });
+  });
+}
+
+// ============================================
+// STAMPA ALLENAMENTO COMPLETO
+// ============================================
+function stampaAllenamento(id) {
+  const a = allenamentiCache[id];
+  if (!a) return;
+
+  const esercizi = a.esercizi || [];
+  const durataTotale = esercizi.reduce((s, e) => s + Number(e.dur || 0), 0);
+
+  const righeEsercizi = esercizi.map((e, i) => {
+    const desc = trovaDescrizioneEsercizio(e.nome, e.desc) || "Nessuna descrizione disponibile.";
+    return `
+      <div style="margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid #ddd;">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:15px;">
+          <span>${i + 1}. ${e.nome}</span>
+          <span>${e.cat} · ${e.dur} min</span>
+        </div>
+        <div style="font-size:13px; color:#333; margin-top:6px; white-space:pre-wrap; line-height:1.5;">${desc}</div>
+      </div>
+    `;
+  }).join("");
+
+  const html = `
+    <!DOCTYPE html>
+    <html lang="it">
+    <head>
+      <meta charset="UTF-8">
+      <title>${a.titolo || "Allenamento"}</title>
+      <style>
+        body { font-family: Arial, Helvetica, sans-serif; padding: 30px; color: #1c1c1c; max-width: 800px; margin: 0 auto; }
+        h1 { color: #000; border-bottom: 3px solid #d6362e; padding-bottom: 10px; margin-bottom: 6px; }
+        .meta { color: #555; margin-bottom: 18px; font-size: 14px; }
+        .note { background: #f4f4f2; padding: 10px 14px; border-radius: 6px; font-size: 13px; margin-bottom: 22px; font-style: italic; }
+        h2 { font-size: 16px; border-bottom: 1px solid #ccc; padding-bottom: 6px; }
+        @media print {
+          body { padding: 10px; }
+        }
+      </style>
+    </head>
+    <body>
+      <h1>${a.titolo || "Allenamento"}</h1>
+      <div class="meta">
+        📅 ${formattaData(a.data)} · ore ${a.ora || "--"} · 📍 ${a.luogo || "-"} · ⏱️ ${durataTotale} min totali · ${a.tipo || "Normale"}
+      </div>
+      ${a.note ? `<div class="note">${a.note}</div>` : ""}
+      <h2>Esercizi (${esercizi.length})</h2>
+      ${righeEsercizi || "<p>Nessun esercizio inserito.</p>"}
+    </body>
+    </html>
+  `;
+
+  const finestra = window.open("", "_blank");
+  finestra.document.write(html);
+  finestra.document.close();
+  finestra.focus();
+  setTimeout(() => finestra.print(), 300);
 }
 
 // ============================================
@@ -154,6 +238,7 @@ function renderLista() {
 function creaRigaEsercizio(esercizio = {}) {
   const riga = document.createElement("div");
   riga.className = "esercizio-form-riga";
+  riga.dataset.desc = esercizio.desc || "";
   riga.innerHTML = `
     <input type="text" class="es-nome" placeholder="Nome esercizio" value="${esercizio.nome || ""}">
     <select class="es-cat">
@@ -174,7 +259,8 @@ function leggiEserciziDalForm() {
   return Array.from(listaEserciziForm.querySelectorAll(".esercizio-form-riga")).map(riga => ({
     nome: riga.querySelector(".es-nome").value.trim(),
     cat: riga.querySelector(".es-cat").value,
-    dur: riga.querySelector(".es-dur").value.trim()
+    dur: riga.querySelector(".es-dur").value.trim(),
+    desc: riga.dataset.desc || ""
   })).filter(e => e.nome); // scarto righe vuote
 }
 
