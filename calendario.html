@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calendario - Gestionale San Giovanni</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/stemma.png" alt="Stemma San Giovanni">
+      <span>Gestionale<br>San Giovanni</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="giocatori.html">👥 Giocatori</a>
+      <a href="allenamenti.html">📋 Allenamenti</a>
+      <a href="esercizi.html">🏃 Esercizi</a>
+      <a href="rapporti.html">📝 Rapporti</a>
+      <a href="calendario.html" class="active">📅 Calendario</a>
+    </nav>
+    <div class="sidebar-logout">
+      <button id="btnLogout">Esci</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-ricerca">
+        <input type="text" id="ricercaGlobale" placeholder="Cerca giocatore o allenamento...">
+        <div class="topbar-risultati" id="topbarRisultati"></div>
+      </div>
+    </div>
+
+  <div class="container">
+    <div class="section-title">
+      <h2>Calendario</h2>
+      <button class="btn-primary" id="btnNuovoEvento">+ Nuovo evento</button>
+    </div>
+
+    <div class="calendario-nav">
+      <button class="btn-secondary" id="btnMesePrec">‹ Precedente</button>
+      <h3 id="titoloMese"></h3>
+      <button class="btn-secondary" id="btnMeseSucc">Successivo ›</button>
+    </div>
+
+    <div class="calendario-legenda">
+      <span><i class="dot dot-allenamento"></i> Allenamento</span>
+      <span><i class="dot dot-partita"></i> Partita</span>
+      <span><i class="dot dot-torneo"></i> Torneo</span>
+      <span><i class="dot dot-comunicazione"></i> Comunicazione</span>
+    </div>
+
+    <div class="calendario-intestazione-giorni">
+      <span>Lun</span><span>Mar</span><span>Mer</span><span>Gio</span><span>Ven</span><span>Sab</span><span>Dom</span>
+    </div>
+    <div class="calendario-grid" id="calendarioGrid"></div>
+
+    <div class="section-title">
+      <h2 id="titoloGiornoSelezionato">Eventi del giorno</h2>
+    </div>
+    <div id="listaEventiGiorno">
+      <p style="color:var(--testo-chiaro);">Seleziona un giorno per vedere gli eventi.</p>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- ===== MODALE NUOVO/MODIFICA EVENTO ===== -->
+  <div class="overlay" id="overlayEvento">
+    <div class="modale" style="max-width:640px;">
+      <h2 id="modaleTitoloEvento">Nuovo evento</h2>
+
+      <div class="campo">
+        <label>Tipo evento</label>
+        <select id="campoTipoEvento">
+          <option value="partita">⚽ Partita</option>
+          <option value="torneo">🏆 Torneo</option>
+          <option value="comunicazione">📰 Comunicazione</option>
+          <option value="allenamento">📋 Allenamento</option>
+        </select>
+      </div>
+
+      <!-- ===== SEZIONE ALLENAMENTO (redirect) ===== -->
+      <div id="sezioneAllenamento" style="display:none;">
+        <p style="color:var(--testo-chiaro); margin-bottom:14px;">
+          Gli allenamenti si creano dalla sezione dedicata, dove trovi anche la libreria esercizi.
+        </p>
+        <a href="allenamenti.html" class="btn-primary" style="display:inline-block; text-decoration:none;">Vai alla sezione Allenamenti →</a>
+      </div>
+
+      <!-- ===== SEZIONE COMUNICAZIONE ===== -->
+      <div id="sezioneComunicazione" style="display:none;">
+        <div class="campo">
+          <label>Titolo</label>
+          <input type="text" id="campoTitoloCom" placeholder="Es. Ripresa allenamenti">
+        </div>
+        <div class="campo">
+          <label>Data</label>
+          <input type="date" id="campoDataCom">
+        </div>
+        <div class="campo">
+          <label>Testo comunicazione</label>
+          <textarea id="campoBodyCom" rows="4" placeholder="Testo della comunicazione..."></textarea>
+        </div>
+        <div class="campo">
+          <label>Firma / autore</label>
+          <input type="text" id="campoAutoreCom" placeholder="Es. Mister Pek">
+        </div>
+      </div>
+
+      <!-- ===== SEZIONE PARTITA ===== -->
+      <div id="sezionePartita" style="display:none;">
+        <div class="campo">
+          <label>Avversario</label>
+          <input type="text" id="campoAvversarioPar" placeholder="Es. ASD Altura">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="campo" style="flex:1;">
+            <label>Data</label>
+            <input type="date" id="campoDataPar">
+          </div>
+          <div class="campo" style="flex:1;">
+            <label>Campo</label>
+            <input type="text" id="campoCampoPar" placeholder="Es. Campo San Giovanni">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="campo" style="flex:1;">
+            <label>Ritrovo</label>
+            <input type="time" id="campoRitrovoPar">
+          </div>
+          <div class="campo" style="flex:1;">
+            <label>Inizio partita</label>
+            <input type="time" id="campoInizioPar">
+          </div>
+        </div>
+        <div class="campo">
+          <label>Note</label>
+          <textarea id="campoNotePar" rows="2" placeholder="Note sulla partita..."></textarea>
+        </div>
+        <div class="campo">
+          <label>Convocati (spunta i giocatori, aggiungi gol/assist se vuoi)</label>
+          <div class="lista-convocati" id="listaConvocatiPartita"></div>
+        </div>
+      </div>
+
+      <!-- ===== SEZIONE TORNEO ===== -->
+      <div id="sezioneTorneo" style="display:none;">
+        <div class="campo">
+          <label>Nome torneo</label>
+          <input type="text" id="campoTitoloTor" placeholder="Es. 43° Coppa Altipiano">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="campo" style="flex:1;">
+            <label>Data</label>
+            <input type="date" id="campoDataTor">
+          </div>
+          <div class="campo" style="flex:1;">
+            <label>Luogo</label>
+            <input type="text" id="campoLuogoTor" placeholder="Es. Opicina">
+          </div>
+        </div>
+        <div class="campo">
+          <label>Note</label>
+          <textarea id="campoNoteTor" rows="2" placeholder="Note sul torneo..."></textarea>
+        </div>
+        <div class="campo">
+          <label>Partite del torneo</label>
+          <div id="listaPartiteTorneo"></div>
+          <button type="button" class="btn-secondary" id="btnAggiungiPartitaTorneo" style="margin-top:8px;">+ Aggiungi partita</button>
+        </div>
+      </div>
+
+      <div class="modale-azioni">
+        <button class="btn-danger" id="btnEliminaEvento" style="display:none;">Elimina</button>
+        <button class="btn-secondary" id="btnAnnullaEvento">Annulla</button>
+        <button class="btn-primary" id="btnSalvaEvento">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/search.js"></script>
+  <script type="module" src="js/calendario.js"></script>
+</body>
+</html>
