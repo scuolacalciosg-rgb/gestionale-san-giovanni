@@ -46,18 +46,22 @@ function renderLista() {
 
   listaGiocatori.innerHTML = ids.map(id => {
     const g = giocatoriCache[id];
-    const statoClasse = (g.stato || "disponibile").toLowerCase();
     const foto = g.foto || "";
     return `
       <div class="giocatore-card" data-id="${id}">
-        <img src="${foto}" alt="${g.nome || ''}" onerror="this.style.opacity=0">
-        <div class="info">
-          <h3>${g.nome || "Senza nome"}</h3>
-          <div class="ruolo">#${g.numero || "-"} · ${g.ruolo || "-"}</div>
-          <select class="select-stato" data-id="${id}" style="margin-top:8px; width:100%; padding:4px; border-radius:6px; border:1px solid var(--bordo);">
-            ${STATI.map(s => `<option value="${s}" ${s === g.stato ? "selected" : ""}>${s}</option>`).join("")}
-          </select>
+        <div class="sticker">
+          <img class="foto-giocatore" src="${foto}" alt="${g.nome || ''}" onerror="this.style.opacity=0">
+          <div class="sticker-cornice"></div>
+          <div class="sticker-numero">${g.numero || "-"}</div>
+          <img class="sticker-stemma" src="assets/stemma.png" alt="Stemma">
+          <div class="sticker-nome-banda">
+            <h3>${g.nome || "Senza nome"}</h3>
+            <div class="ruolo">${g.ruolo || "-"}</div>
+          </div>
         </div>
+        <select class="select-stato" data-id="${id}">
+          ${STATI.map(s => `<option value="${s}" ${s === g.stato ? "selected" : ""}>${s}</option>`).join("")}
+        </select>
       </div>
     `;
   }).join("");
