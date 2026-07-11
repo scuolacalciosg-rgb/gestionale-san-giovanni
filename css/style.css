@@ -392,42 +392,102 @@ body {
 
 .lista-giocatori {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 18px;
 }
 
 .giocatore-card {
-  background: var(--bianco);
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: var(--ombra);
   cursor: pointer;
+}
+
+.giocatore-card .sticker {
+  position: relative;
+  aspect-ratio: 3/4;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--verde);
+  border: 3px solid var(--rosso);
+  box-shadow: var(--ombra);
   transition: transform 0.15s;
 }
 
-.giocatore-card:hover {
+.giocatore-card:hover .sticker {
   transform: translateY(-3px);
 }
 
-.giocatore-card img {
+.giocatore-card .sticker-cornice {
+  position: absolute;
+  inset: 5px;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.giocatore-card .sticker img.foto-giocatore {
+  position: absolute;
+  inset: 0;
   width: 100%;
-  height: 160px;
+  height: 100%;
   object-fit: cover;
-  background: var(--bordo);
 }
 
-.giocatore-card .info {
-  padding: 12px;
+.giocatore-card .sticker-numero {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--rosso);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  z-index: 3;
 }
 
-.giocatore-card .info h3 {
-  font-size: 1rem;
-  margin-bottom: 2px;
+.giocatore-card .sticker-stemma {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  height: 34px;
+  width: auto;
+  z-index: 3;
+  opacity: 0.92;
 }
 
-.giocatore-card .info .ruolo {
-  font-size: 0.8rem;
-  color: var(--testo-chiaro);
+.giocatore-card .sticker-nome-banda {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 22px 10px 10px 10px;
+  background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
+  z-index: 2;
+}
+
+.giocatore-card .sticker-nome-banda h3 {
+  font-size: 0.92rem;
+  color: #fff;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.giocatore-card .sticker-nome-banda .ruolo {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.8);
+}
+
+.giocatore-card .select-stato {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px;
+  border-radius: 6px;
+  border: 1px solid var(--bordo);
+  font-size: 0.85rem;
 }
 
 .badge {
