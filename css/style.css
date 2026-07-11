@@ -871,6 +871,138 @@ body {
   display: none;
 }
 
+/* ---------- RAPPORTI: LAYOUT A DUE COLONNE ---------- */
+.rapporti-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.rapporti-lista-giocatori {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rapporti-giocatore-riga {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bianco);
+  border-radius: 10px;
+  padding: 10px 14px;
+  box-shadow: var(--ombra);
+  cursor: pointer;
+  border-left: 3px solid transparent;
+}
+
+.rapporti-giocatore-riga:hover {
+  border-left-color: var(--rosso);
+}
+
+.rapporti-giocatore-riga.selezionato {
+  border-left-color: var(--rosso);
+  background: #fdf1f0;
+}
+
+.rapporti-giocatore-riga img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--grigio-sfondo);
+  flex-shrink: 0;
+}
+
+.rapporti-giocatore-riga .rg-info {
+  min-width: 0;
+}
+
+.rapporti-giocatore-riga .rg-nome {
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rapporti-giocatore-riga .rg-meta {
+  font-size: 0.75rem;
+  color: var(--testo-chiaro);
+}
+
+.rapporti-dettaglio-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--bianco);
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: var(--ombra);
+  margin-bottom: 18px;
+  border-left: 4px solid var(--rosso);
+}
+
+.rapporti-dettaglio-header img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--grigio-sfondo);
+}
+
+.rapporto-card {
+  background: var(--bianco);
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: var(--ombra);
+  margin-bottom: 14px;
+}
+
+.rapporto-card .rc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.rapporto-card .rc-voto {
+  background: var(--verde);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+
+.rapporto-card .rc-sezione {
+  margin-bottom: 8px;
+}
+
+.rapporto-card .rc-sezione .rc-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--rosso);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.rapporto-card .rc-sezione p {
+  font-size: 0.88rem;
+  color: var(--testo);
+  line-height: 1.5;
+}
+
+@media (max-width: 750px) {
+  .rapporti-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 750px) {
   .dash-colonne {
     grid-template-columns: 1fr;
