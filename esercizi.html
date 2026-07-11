@@ -100,6 +100,13 @@
         <textarea id="campoDescEs" rows="5" placeholder="Obiettivo, svolgimento, varianti..."></textarea>
       </div>
 
+      <div class="campo" style="text-align:center;">
+        <label style="text-align:left;">Immagine / schema (facoltativo)</label>
+        <img id="previewFotoEs" src="" alt="Immagine esercizio"
+             style="max-width:100%; max-height:200px; border-radius:8px; object-fit:contain; background:#eee; display:none; margin:0 auto 10px auto;">
+        <input type="file" id="inputFotoEs" accept="image/*" capture="environment">
+      </div>
+
       <div class="modale-azioni">
         <button class="btn-danger" id="btnEliminaEsercizio" style="display:none;">Elimina</button>
         <button class="btn-secondary" id="btnAnnullaEsercizio">Annulla</button>
