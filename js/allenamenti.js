@@ -116,6 +116,13 @@ function trovaDescrizioneEsercizio(nomeEsercizio, descSalvata) {
   return trovato ? (trovato.desc || "") : "";
 }
 
+function nomeMese(chiaveMese) {
+  const [anno, mese] = chiaveMese.split("-");
+  const data = new Date(Number(anno), Number(mese) - 1, 1);
+  const nome = data.toLocaleDateString("it-IT", { month: "long", year: "numeric" });
+  return nome.charAt(0).toUpperCase() + nome.slice(1);
+}
+
 function renderLista() {
   const ids = Object.keys(allenamentiCache);
   if (ids.length === 0) {
@@ -126,43 +133,84 @@ function renderLista() {
   // Ordino in ordine cronologico (dal più vecchio al più recente)
   ids.sort((a, b) => (allenamentiCache[a].data || "").localeCompare(allenamentiCache[b].data || ""));
 
-  const oggi = new Date().toISOString().split("T")[0];
+  // Raggruppo per mese (chiave AAAA-MM)
+  const gruppi = {};
+  ids.forEach(id => {
+    const data = allenamentiCache[id].data || "";
+    const chiaveMese = data ? data.slice(0, 7) : "senza-data";
+    if (!gruppi[chiaveMese]) gruppi[chiaveMese] = [];
+    gruppi[chiaveMese].push(id);
+  });
 
-  listaAllenamenti.innerHTML = ids.map(id => {
-    const a = allenamentiCache[id];
-    const esercizi = a.esercizi || [];
-    const durataTotale = esercizi.reduce((s, e) => s + Number(e.dur || 0), 0);
-    const futuro = a.data >= oggi;
-    return `
-      <div class="allenamento-card" data-id="${id}" style="${futuro ? "border-left:4px solid var(--verde);" : "opacity:0.85;"}">
-        <div class="data-riga">
-          <h3>${a.titolo || "Allenamento"}</h3>
-          <span class="tag-cat">${formattaData(a.data)} · ${a.ora || "--"}</span>
+  const meseCorrente = new Date().toISOString().slice(0, 7);
+  const chiaviMesi = Object.keys(gruppi).sort();
+
+  listaAllenamenti.innerHTML = chiaviMesi.map(chiaveMese => {
+    const idsMese = gruppi[chiaveMese];
+    // Aperto di default: il mese corrente e i mesi futuri; chiuso quelli passati
+    const apertoDiDefault = chiaveMese >= meseCorrente;
+    const titoloMese = chiaveMese === "senza-data" ? "Senza data" : nomeMese(chiaveMese);
+
+    const cardsHtml = idsMese.map(id => {
+      const a = allenamentiCache[id];
+      const esercizi = a.esercizi || [];
+      const durataTotale = esercizi.reduce((s, e) => s + Number(e.dur || 0), 0);
+      const oggi = new Date().toISOString().split("T")[0];
+      const futuro = a.data >= oggi;
+      return `
+        <div class="allenamento-card" data-id="${id}" style="${futuro ? "border-left:4px solid var(--verde);" : "opacity:0.85;"}">
+          <div class="data-riga">
+            <h3>${a.titolo || "Allenamento"}</h3>
+            <span class="tag-cat">${formattaData(a.data)} · ${a.ora || "--"}</span>
+          </div>
+          <p style="margin-bottom:8px; color:var(--testo-chiaro); font-size:0.9rem;">
+            📍 ${a.luogo || "-"} · ⏱️ ${durataTotale} min · ${a.tipo || "Normale"}
+          </p>
+          ${a.note ? `<p style="font-size:0.85rem; color:var(--testo-chiaro); margin-bottom:8px; font-style:italic;">${a.note}</p>` : ""}
+          ${esercizi.map(e => {
+            const desc = trovaDescrizioneEsercizio(e.nome, e.desc) || "Nessuna descrizione disponibile.";
+            const descAttr = desc.replace(/"/g, "&quot;").replace(/\n/g, " ");
+            return `
+              <div class="esercizio-riga" title="${descAttr}">
+                <span>${e.nome}</span>
+                <span class="tag-cat">${e.cat} · ${e.dur}'</span>
+              </div>
+            `;
+          }).join("")}
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <button class="btn-secondary btn-modifica" data-id="${id}">Modifica</button>
+            <button class="btn-secondary btn-stampa" data-id="${id}">🖨️ Stampa</button>
+          </div>
         </div>
-        <p style="margin-bottom:8px; color:var(--testo-chiaro); font-size:0.9rem;">
-          📍 ${a.luogo || "-"} · ⏱️ ${durataTotale} min · ${a.tipo || "Normale"}
-        </p>
-        ${a.note ? `<p style="font-size:0.85rem; color:var(--testo-chiaro); margin-bottom:8px; font-style:italic;">${a.note}</p>` : ""}
-        ${esercizi.map(e => {
-          const desc = trovaDescrizioneEsercizio(e.nome, e.desc) || "Nessuna descrizione disponibile.";
-          const descAttr = desc.replace(/"/g, "&quot;").replace(/\n/g, " ");
-          return `
-            <div class="esercizio-riga" title="${descAttr}">
-              <span>${e.nome}</span>
-              <span class="tag-cat">${e.cat} · ${e.dur}'</span>
-            </div>
-          `;
-        }).join("")}
-        <div style="margin-top:12px; display:flex; gap:8px;">
-          <button class="btn-secondary btn-modifica" data-id="${id}">Modifica</button>
-          <button class="btn-secondary btn-stampa" data-id="${id}">🖨️ Stampa</button>
+      `;
+    }).join("");
+
+    return `
+      <div class="gruppo-mese ${apertoDiDefault ? "" : "collassato"}">
+        <div class="gruppo-mese-titolo">
+          <span class="freccia-mese">▾</span>
+          <span>${titoloMese}</span>
+          <span class="conteggio">${idsMese.length}</span>
+        </div>
+        <div class="gruppo-mese-contenuto">
+          ${cardsHtml}
         </div>
       </div>
     `;
   }).join("");
 
+  // Toggle apertura/chiusura mese
+  listaAllenamenti.querySelectorAll(".gruppo-mese-titolo").forEach(titolo => {
+    titolo.addEventListener("click", () => {
+      titolo.closest(".gruppo-mese").classList.toggle("collassato");
+    });
+  });
+
   listaAllenamenti.querySelectorAll(".btn-modifica").forEach(btn => {
-    btn.addEventListener("click", () => apriModificaAllenamento(btn.dataset.id));
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      apriModificaAllenamento(btn.dataset.id);
+    });
   });
 
   listaAllenamenti.querySelectorAll(".btn-stampa").forEach(btn => {
