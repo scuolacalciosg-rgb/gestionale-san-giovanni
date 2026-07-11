@@ -1006,6 +1006,202 @@ body {
   }
 }
 
+/* ---------- CALENDARIO ---------- */
+.calendario-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.calendario-nav h3 {
+  font-size: 1.2rem;
+  color: var(--verde-scuro);
+  text-transform: capitalize;
+}
+
+.calendario-legenda {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  font-size: 0.82rem;
+  color: var(--testo-chiaro);
+}
+
+.calendario-legenda span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.dot-allenamento { background: var(--verde); }
+.dot-partita { background: var(--rosso); }
+.dot-torneo { background: #c99a2e; }
+.dot-comunicazione { background: #2e6fc9; }
+
+.calendario-intestazione-giorni {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--testo-chiaro);
+  margin-bottom: 6px;
+}
+
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 24px;
+}
+
+.calendario-cella {
+  aspect-ratio: 1/0.85;
+  background: var(--bianco);
+  border-radius: 8px;
+  padding: 6px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.calendario-cella.vuota {
+  background: transparent;
+  cursor: default;
+}
+
+.calendario-cella:hover:not(.vuota) {
+  border-color: var(--bordo);
+}
+
+.calendario-cella.oggi {
+  border-color: var(--rosso);
+}
+
+.calendario-cella.selezionata {
+  background: #fdf1f0;
+  border-color: var(--rosso);
+}
+
+.calendario-cella .numero-giorno {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--testo);
+}
+
+.calendario-cella .puntini {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+}
+
+.evento-riga-giorno {
+  background: var(--bianco);
+  border-radius: 10px;
+  padding: 14px 18px;
+  box-shadow: var(--ombra);
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-left: 4px solid var(--testo-chiaro);
+}
+
+.evento-riga-giorno.tipo-allenamento { border-left-color: var(--verde); }
+.evento-riga-giorno.tipo-partita { border-left-color: var(--rosso); }
+.evento-riga-giorno.tipo-torneo { border-left-color: #c99a2e; }
+.evento-riga-giorno.tipo-comunicazione { border-left-color: #2e6fc9; }
+
+.evento-riga-giorno .er-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.evento-riga-giorno .er-tipo {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--testo-chiaro);
+  font-weight: 700;
+}
+
+/* ---------- LISTA CONVOCATI (partite/tornei) ---------- */
+.lista-convocati {
+  max-height: 260px;
+  overflow-y: auto;
+  border: 1px solid var(--bordo);
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.convocato-riga {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 4px;
+  border-bottom: 1px solid var(--grigio-sfondo);
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.convocato-riga:last-child {
+  border-bottom: none;
+}
+
+.convocato-riga .conv-nome {
+  flex: 1;
+}
+
+.convocato-riga .conv-gol,
+.convocato-riga .conv-assist {
+  width: 55px;
+  padding: 4px 6px;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.torneo-partita-block {
+  background: var(--grigio-sfondo);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.torneo-partita-block .tpb-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.torneo-partita-block .tpb-header input {
+  flex: 1;
+  padding: 8px;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+}
+
+.torneo-partita-block .btn-rimuovi-tpb {
+  background: none;
+  border: none;
+  color: var(--rosso);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px 8px;
+}
+
 @media (max-width: 750px) {
   .dash-colonne {
     grid-template-columns: 1fr;
