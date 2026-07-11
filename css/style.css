@@ -825,6 +825,52 @@ body {
   color: #a05a00;
 }
 
+/* ---------- GRUPPI MENSILI ALLENAMENTI (accordion) ---------- */
+.gruppo-mese {
+  margin-bottom: 12px;
+}
+
+.gruppo-mese-titolo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  background: var(--verde);
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  user-select: none;
+}
+
+.gruppo-mese-titolo .freccia-mese {
+  transition: transform 0.2s;
+  font-size: 0.85rem;
+}
+
+.gruppo-mese.collassato .freccia-mese {
+  transform: rotate(-90deg);
+}
+
+.gruppo-mese-titolo .conteggio {
+  background: var(--rosso);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+  margin-left: auto;
+}
+
+.gruppo-mese-contenuto {
+  padding-top: 14px;
+}
+
+.gruppo-mese.collassato .gruppo-mese-contenuto {
+  display: none;
+}
+
 @media (max-width: 750px) {
   .dash-colonne {
     grid-template-columns: 1fr;
