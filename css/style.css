@@ -392,8 +392,8 @@ body {
 
 .lista-giocatori {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 22px;
 }
 
 .giocatore-card {
@@ -436,24 +436,24 @@ body {
   position: absolute;
   top: 10px;
   left: 10px;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: var(--rosso);
   color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 700;
   z-index: 3;
 }
 
 .giocatore-card .sticker-stemma {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  height: 34px;
+  top: 10px;
+  right: 10px;
+  height: 42px;
   width: auto;
   z-index: 3;
   opacity: 0.92;
@@ -464,20 +464,20 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 22px 10px 10px 10px;
+  padding: 26px 12px 12px 12px;
   background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
   z-index: 2;
 }
 
 .giocatore-card .sticker-nome-banda h3 {
-  font-size: 0.92rem;
+  font-size: 1.05rem;
   color: #fff;
   margin: 0;
   line-height: 1.2;
 }
 
 .giocatore-card .sticker-nome-banda .ruolo {
-  font-size: 0.75rem;
+  font-size: 0.82rem;
   color: rgba(255,255,255,0.8);
 }
 
