@@ -37,6 +37,38 @@ export async function chiamaAI(promptSistema, promptUtente) {
   return testo;
 }
 
+// Ripulisce eventuali "a capo" o caratteri di controllo scritti dall'AI dentro
+// le stringhe del JSON (che altrimenti mandano in errore il parsing)
+function sanaCaratteriControllo(testo) {
+  let risultato = "";
+  let dentroStringa = false;
+  let precedenteEraBackslash = false;
+
+  for (const carattere of testo) {
+    if (dentroStringa) {
+      if (precedenteEraBackslash) {
+        risultato += carattere;
+        precedenteEraBackslash = false;
+        continue;
+      }
+      if (carattere === "\\") {
+        risultato += carattere;
+        precedenteEraBackslash = true;
+        continue;
+      }
+      if (carattere === "\n") { risultato += "\\n"; continue; }
+      if (carattere === "\r") { continue; }
+      if (carattere === "\t") { risultato += "\\t"; continue; }
+      if (carattere === '"') { dentroStringa = false; risultato += carattere; continue; }
+      risultato += carattere;
+    } else {
+      if (carattere === '"') dentroStringa = true;
+      risultato += carattere;
+    }
+  }
+  return risultato;
+}
+
 // Estrae in modo robusto un oggetto JSON dalla risposta testuale dell'AI
 // (utile perché a volte i modelli aggiungono testo o backtick attorno al JSON)
 export function estraiJSON(testo) {
@@ -46,5 +78,7 @@ export function estraiJSON(testo) {
   if (inizio === -1 || fine === -1) {
     throw new Error("La risposta dell'AI non era nel formato atteso. Riprova, magari riformulando le linee guida.");
   }
-  return JSON.parse(pulito.slice(inizio, fine + 1));
+  const grezzo = pulito.slice(inizio, fine + 1);
+  const sanato = sanaCaratteriControllo(grezzo);
+  return JSON.parse(sanato);
 }

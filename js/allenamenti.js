@@ -483,19 +483,22 @@ btnGeneraAllenamentoAI.addEventListener("click", async () => {
   try {
     const promptSistema = `Sei un assistente esperto di metodologia giovanile del calcio per la categoria "Primi Calci" (bambini di 6-7 anni), ispirato alle metodologie delle scuole calcio di Atalanta, Milan e Juventus.
 La struttura di riferimento del coach è il "Mix Perfetto" in 4 fasi: Attivazione, Fase Tecnica, Situazionale, Partita Finale.
-Genera una sessione di allenamento completa in base alle indicazioni del coach.
+Genera una sessione di allenamento completa in base alle indicazioni del coach, seguendo queste regole:
+- Crea tra 4 e 7 esercizi in totale, uno o due per ciascuna delle 4 fasi.
+- La somma dei minuti (campo "dur") deve corrispondere il più possibile alla durata totale richiesta dal coach (tolleranza massima 10 minuti in più o in meno). Non aggiungere esercizi in eccesso.
+- Se ti viene fornito un elenco di esercizi già in libreria, NON limitarti a copiarli tutti: scegli solo quelli più adatti alle linee guida, e componi il resto della sessione inventando esercizi nuovi, originali e coerenti con l'obiettivo. Una buona sessione mescola esercizi di libreria (se pertinenti) e idee nuove.
 Rispondi SOLO con un oggetto JSON valido, senza testo prima o dopo, con esattamente questa struttura:
 {"titolo": "...", "note": "...", "esercizi": [{"nome": "...", "cat": "Riscaldamento|Velocità|Coordinativo|Passaggi|Conduzione|Tiro|Situazioni", "dur": "15", "desc": "..."}]}
-Le descrizioni devono essere chiare, pratiche e adatte a bambini di 6-7 anni (obiettivo e svolgimento in poche frasi).`;
+Le descrizioni devono essere chiare, pratiche e adatte a bambini di 6-7 anni (obiettivo e svolgimento in poche frasi, scritte su una sola riga senza andare a capo).`;
 
     let promptUtente = `Linee guida del coach: ${lineeGuida}`;
 
     if (campoUsaLibreriaAI.checked) {
       const elencoLibreria = Object.values(eserciziLibreria)
         .map(e => `${e.nome} (${e.cat})`)
-        .slice(0, 150)
+        .slice(0, 60)
         .join(", ");
-      promptUtente += `\n\nEsercizi già disponibili nella libreria del coach (usali quando pertinenti, riscrivendo il nome esattamente uguale): ${elencoLibreria}`;
+      promptUtente += `\n\nEsercizi disponibili in libreria, da usare solo se pertinenti (va benissimo anche inventarne altri): ${elencoLibreria}`;
     }
 
     const rispostaTesto = await chiamaAI(promptSistema, promptUtente);
