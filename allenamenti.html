@@ -21,6 +21,7 @@
       <a href="esercizi.html">🏃 Esercizi</a>
       <a href="rapporti.html">📝 Rapporti</a>
       <a href="calendario.html">📅 Calendario</a>
+      <a href="ia.html">✨ Assistente AI</a>
     </nav>
     <div class="sidebar-logout">
       <button id="btnLogout">Esci</button>
@@ -38,7 +39,10 @@
   <div class="container">
     <div class="section-title">
       <h2>Allenamenti</h2>
-      <button class="btn-primary" id="btnNuovoAllenamento">+ Nuovo allenamento</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-secondary" id="btnGeneraConAI">🤖 Genera con AI</button>
+        <button class="btn-primary" id="btnNuovoAllenamento">+ Nuovo allenamento</button>
+      </div>
     </div>
 
     <div id="listaAllenamenti">
@@ -114,6 +118,38 @@
         <button class="btn-danger" id="btnEliminaAllenamento" style="display:none;">Elimina</button>
         <button class="btn-secondary" id="btnAnnullaAllenamento">Annulla</button>
         <button class="btn-primary" id="btnSalvaAllenamento">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODALE GENERA ALLENAMENTO CON AI ===== -->
+  <div class="overlay" id="overlayGeneraAI">
+    <div class="modale" style="max-width:600px;">
+      <h2>🤖 Genera allenamento con AI</h2>
+
+      <div class="campo">
+        <label>Linee guida per l'AI</label>
+        <textarea id="campoLineeGuidaAI" rows="5" placeholder="Es: allenamento di 60 minuti per Piccoli Amici, focus su conduzione palla e primo controllo, stile Atalanta. Struttura in 4 fasi: attivazione, tecnica, situazionale, partita finale."></textarea>
+      </div>
+
+      <div class="campo" style="display:flex; align-items:center; gap:8px;">
+        <input type="checkbox" id="campoUsaLibreriaAI" checked style="width:auto;">
+        <label style="margin:0;">Preferisci esercizi già presenti nella libreria, quando possibile</label>
+      </div>
+
+      <button class="btn-primary" id="btnGeneraAllenamentoAI" style="width:100%;">✨ Genera allenamento</button>
+
+      <div id="risultatoAI" style="margin-top:16px;"></div>
+
+      <div id="azioniRisultatoAI" style="display:none; margin-top:14px;">
+        <div class="campo" style="display:flex; align-items:center; gap:8px;">
+          <input type="checkbox" id="campoSalvaEserciziAI" checked style="width:auto;">
+          <label style="margin:0;">Salva anche i nuovi esercizi nella libreria</label>
+        </div>
+        <div class="modale-azioni">
+          <button class="btn-secondary" id="btnAnnullaGeneraAI">Chiudi</button>
+          <button class="btn-primary" id="btnUsaAllenamentoAI">Usa questo allenamento →</button>
+        </div>
       </div>
     </div>
   </div>
