@@ -21,6 +21,9 @@
       <a href="esercizi.html">🏃 Esercizi</a>
       <a href="rapporti.html">📝 Rapporti</a>
       <a href="calendario.html" class="active">📅 Calendario</a>
+      <a href="galleria.html">📸 Galleria</a>
+      <a href="stagioni.html">🗓️ Stagioni</a>
+      <a href="ia.html">✨ Assistente AI</a>
     </nav>
     <div class="sidebar-logout">
       <button id="btnLogout">Esci</button>
@@ -142,6 +145,17 @@
           <label>Note</label>
           <textarea id="campoNotePar" rows="2" placeholder="Note sulla partita..."></textarea>
         </div>
+        <div style="display:flex; gap:12px; align-items:flex-end;">
+          <div class="campo" style="flex:1;">
+            <label>Gol San Giovanni</label>
+            <input type="number" id="campoGolNostriPar" min="0" placeholder="Es. 3">
+          </div>
+          <div class="campo" style="flex:1;">
+            <label>Gol avversario</label>
+            <input type="number" id="campoGolAvversarioPar" min="0" placeholder="Es. 1">
+          </div>
+        </div>
+        <p style="font-size:0.78rem; color:var(--testo-chiaro); margin-top:-8px; margin-bottom:14px;">Lascia vuoto se la partita non è ancora stata giocata.</p>
         <div class="campo">
           <label>Convocati (spunta i giocatori, aggiungi gol/assist se vuoi)</label>
           <div class="lista-convocati" id="listaConvocatiPartita"></div>

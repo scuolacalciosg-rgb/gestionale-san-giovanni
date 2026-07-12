@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard - Gestionale San Giovanni</title>
+<title>Stagioni - Gestionale San Giovanni</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -15,15 +15,14 @@
       <span>Gestionale<br>San Giovanni</span>
     </div>
     <nav class="sidebar-nav">
-      <a href="dashboard.html" class="active">🏠 Dashboard</a>
+      <a href="dashboard.html">🏠 Dashboard</a>
       <a href="giocatori.html">👥 Giocatori</a>
       <a href="allenamenti.html">📋 Allenamenti</a>
       <a href="esercizi.html">🏃 Esercizi</a>
       <a href="rapporti.html">📝 Rapporti</a>
       <a href="calendario.html">📅 Calendario</a>
       <a href="galleria.html">📸 Galleria</a>
-      <a href="stagioni.html">🗓️ Stagioni</a>
-      <a href="ia.html">✨ Assistente AI</a>
+      <a href="stagioni.html" class="active">🗓️ Stagioni</a>
     </nav>
     <div class="sidebar-logout">
       <button id="btnLogout">Esci</button>
@@ -39,40 +38,38 @@
     </div>
 
   <div class="container">
-    <div class="dash-titolo">
-      <img src="assets/stemma.png" alt="Stemma San Giovanni" class="dash-titolo-stemma">
-      <div>
-        <h1>PRIMI CALCI</h1>
-        <p id="dataOggi"></p>
-      </div>
+    <div class="section-title">
+      <h2>Stagione corrente</h2>
     </div>
 
-    <div id="visiteScadenza"></div>
+    <div class="cards-grid" id="cardsStagioneCorrente">
+      <div class="loading">Caricamento...</div>
+    </div>
 
-    <div class="dash-colonne">
-      <div class="dash-colonna">
-        <div class="section-title">
-          <h2>📰 Ultime comunicazioni</h2>
-        </div>
-        <div id="ultimeNotizie">
-          <div class="loading">Caricamento...</div>
-        </div>
-      </div>
+    <div class="section-title">
+      <h2>Archivio stagioni</h2>
+      <button class="btn-primary" id="btnArchiviaStagione">📦 Archivia stagione corrente</button>
+    </div>
 
-      <div class="dash-colonna">
-        <div class="section-title">
-          <h2>Prossimi allenamenti</h2>
-        </div>
-        <div id="prossimoAllenamento">
-          <div class="loading">Caricamento...</div>
-        </div>
-      </div>
+    <div id="listaStagioni">
+      <div class="loading">Caricamento archivio...</div>
     </div>
   </div>
   </div>
+  </div>
+
+  <!-- ===== MODALE DETTAGLIO STAGIONE ARCHIVIATA ===== -->
+  <div class="overlay" id="overlayStagione">
+    <div class="modale" style="max-width:600px;">
+      <h2 id="modaleTitoloStagione">Stagione</h2>
+      <div id="dettaglioStagione"></div>
+      <div class="modale-azioni">
+        <button class="btn-secondary" id="btnChiudiStagione">Chiudi</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="js/search.js"></script>
-  <script type="module" src="js/dashboard.js"></script>
+  <script type="module" src="js/stagioni.js"></script>
 </body>
 </html>
