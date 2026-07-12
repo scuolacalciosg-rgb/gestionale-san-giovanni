@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stagioni - Gestionale San Giovanni</title>
+<title>Statistiche - Gestionale San Giovanni</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -22,8 +22,8 @@
       <a href="rapporti.html">📝 Rapporti</a>
       <a href="calendario.html">📅 Calendario</a>
       <a href="galleria.html">📸 Galleria</a>
-      <a href="statistiche.html">📊 Statistiche</a>
-      <a href="stagioni.html" class="active">🗓️ Stagioni</a>
+      <a href="statistiche.html" class="active">📊 Statistiche</a>
+      <a href="stagioni.html">🗓️ Stagioni</a>
     </nav>
     <div class="sidebar-logout">
       <button id="btnLogout">Esci</button>
@@ -40,37 +40,29 @@
 
   <div class="container">
     <div class="section-title">
-      <h2>Stagione corrente</h2>
+      <h2>Statistiche Squadra</h2>
     </div>
 
-    <div class="cards-grid" id="cardsStagioneCorrente">
-      <div class="loading">Caricamento...</div>
+    <div class="statistiche-colonne">
+      <div>
+        <div class="section-title"><h2>⚽ Classifica marcatori</h2></div>
+        <div id="classificaMarcatori"><div class="loading">Caricamento...</div></div>
+      </div>
+      <div>
+        <div class="section-title"><h2>🎯 Classifica assist</h2></div>
+        <div id="classificaAssist"><div class="loading">Caricamento...</div></div>
+      </div>
     </div>
 
     <div class="section-title">
-      <h2>Archivio stagioni</h2>
-      <button class="btn-primary" id="btnArchiviaStagione">📦 Archivia stagione corrente</button>
+      <h2>📋 Presenze agli allenamenti</h2>
     </div>
-
-    <div id="listaStagioni">
-      <div class="loading">Caricamento archivio...</div>
-    </div>
+    <div id="tabellaPresenze"><div class="loading">Caricamento...</div></div>
   </div>
   </div>
-  </div>
-
-  <!-- ===== MODALE DETTAGLIO STAGIONE ARCHIVIATA ===== -->
-  <div class="overlay" id="overlayStagione">
-    <div class="modale" style="max-width:600px;">
-      <h2 id="modaleTitoloStagione">Stagione</h2>
-      <div id="dettaglioStagione"></div>
-      <div class="modale-azioni">
-        <button class="btn-secondary" id="btnChiudiStagione">Chiudi</button>
-      </div>
-    </div>
   </div>
 
   <script type="module" src="js/search.js"></script>
-  <script type="module" src="js/stagioni.js"></script>
+  <script type="module" src="js/statistiche.js"></script>
 </body>
 </html>
