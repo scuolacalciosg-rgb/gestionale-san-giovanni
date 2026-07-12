@@ -1202,6 +1202,58 @@ body {
   padding: 4px 8px;
 }
 
+.presenza-riga {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--grigio-sfondo);
+}
+
+.presenza-riga:last-child {
+  border-bottom: none;
+}
+
+.presenza-riga .pr-nome {
+  flex: 1;
+  font-size: 0.9rem;
+}
+
+.presenza-riga select {
+  padding: 6px 8px;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  font-size: 0.82rem;
+}
+
+/* ---------- GALLERIA FOTO ---------- */
+.galleria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.galleria-cella {
+  position: relative;
+  aspect-ratio: 1/1;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: var(--ombra);
+  background: var(--grigio-sfondo);
+}
+
+.galleria-cella img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.galleria-cella:hover img {
+  transform: scale(1.05);
+}
+
 @media (max-width: 750px) {
   .dash-colonne {
     grid-template-columns: 1fr;
