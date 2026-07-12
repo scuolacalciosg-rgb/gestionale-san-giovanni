@@ -216,7 +216,7 @@ function renderEventiGiorno() {
       if (tipo === "allenamento") {
         window.location.href = `allenamenti.html?id=${id}`;
       } else if (tipo === "comunicazione") {
-        window.location.href = `dashboard.html`;
+        apriModificaComunicazione(id);
       } else if (tipo === "partita") {
         apriModificaPartita(id);
       } else if (tipo === "torneo") {
@@ -393,6 +393,23 @@ function apriModificaPartita(id) {
   document.getElementById("campoNotePar").value = p.note || "";
   listaConvocatiPartita.innerHTML = "";
   listaConvocatiPartita.appendChild(creaListaConvocati(p.convocati || []));
+
+  btnEliminaEvento.style.display = "inline-block";
+  overlayEvento.classList.add("attivo");
+}
+
+function apriModificaComunicazione(id) {
+  eventoInModifica = { tipo: "comunicazione", id };
+  const n = newsCache[id];
+  modaleTitoloEvento.textContent = "Comunicazione";
+  campoTipoEvento.value = "comunicazione";
+  campoTipoEvento.disabled = true;
+  mostraSezione("comunicazione");
+
+  document.getElementById("campoTitoloCom").value = n.titolo || "";
+  document.getElementById("campoDataCom").value = convertiDataItalianaISO(n.data);
+  document.getElementById("campoBodyCom").value = n.body || "";
+  document.getElementById("campoAutoreCom").value = n.autore || "";
 
   btnEliminaEvento.style.display = "inline-block";
   overlayEvento.classList.add("attivo");
