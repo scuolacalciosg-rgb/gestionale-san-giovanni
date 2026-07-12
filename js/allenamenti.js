@@ -1,5 +1,6 @@
 import { proteggiPagina, collegaLogout } from "./auth-guard.js";
 import { db, ref, get, set, push, update, remove } from "./firebase-config.js";
+import { chiamaAI, estraiJSON } from "./ai.js";
 
 await proteggiPagina();
 collegaLogout();
@@ -434,6 +435,131 @@ overlayAllenamento.addEventListener("click", (e) => {
 
 caricaAllenamenti();
 caricaLibreriaEsercizi();
+
+// ============================================
+// GENERA ALLENAMENTO CON AI
+// ============================================
+const overlayGeneraAI = document.getElementById("overlayGeneraAI");
+const btnGeneraConAI = document.getElementById("btnGeneraConAI");
+const btnAnnullaGeneraAI = document.getElementById("btnAnnullaGeneraAI");
+const btnGeneraAllenamentoAI = document.getElementById("btnGeneraAllenamentoAI");
+const btnUsaAllenamentoAI = document.getElementById("btnUsaAllenamentoAI");
+const campoLineeGuidaAI = document.getElementById("campoLineeGuidaAI");
+const campoUsaLibreriaAI = document.getElementById("campoUsaLibreriaAI");
+const campoSalvaEserciziAI = document.getElementById("campoSalvaEserciziAI");
+const risultatoAI = document.getElementById("risultatoAI");
+const azioniRisultatoAI = document.getElementById("azioniRisultatoAI");
+
+let allenamentoGeneratoAI = null;
+
+btnGeneraConAI.addEventListener("click", () => {
+  campoLineeGuidaAI.value = "";
+  risultatoAI.innerHTML = "";
+  azioniRisultatoAI.style.display = "none";
+  allenamentoGeneratoAI = null;
+  overlayGeneraAI.classList.add("attivo");
+});
+
+btnAnnullaGeneraAI.addEventListener("click", () => {
+  overlayGeneraAI.classList.remove("attivo");
+});
+
+overlayGeneraAI.addEventListener("click", (e) => {
+  if (e.target === overlayGeneraAI) overlayGeneraAI.classList.remove("attivo");
+});
+
+btnGeneraAllenamentoAI.addEventListener("click", async () => {
+  const lineeGuida = campoLineeGuidaAI.value.trim();
+  if (!lineeGuida) {
+    alert("Scrivi qualche linea guida per l'AI prima di generare.");
+    return;
+  }
+
+  btnGeneraAllenamentoAI.disabled = true;
+  btnGeneraAllenamentoAI.textContent = "Generazione in corso...";
+  risultatoAI.innerHTML = `<p style="color:var(--testo-chiaro);">🤖 Sto pensando all'allenamento...</p>`;
+  azioniRisultatoAI.style.display = "none";
+
+  try {
+    const promptSistema = `Sei un assistente esperto di metodologia giovanile del calcio per la categoria "Primi Calci" (bambini di 6-7 anni), ispirato alle metodologie delle scuole calcio di Atalanta, Milan e Juventus.
+La struttura di riferimento del coach è il "Mix Perfetto" in 4 fasi: Attivazione, Fase Tecnica, Situazionale, Partita Finale.
+Genera una sessione di allenamento completa in base alle indicazioni del coach.
+Rispondi SOLO con un oggetto JSON valido, senza testo prima o dopo, con esattamente questa struttura:
+{"titolo": "...", "note": "...", "esercizi": [{"nome": "...", "cat": "Riscaldamento|Velocità|Coordinativo|Passaggi|Conduzione|Tiro|Situazioni", "dur": "15", "desc": "..."}]}
+Le descrizioni devono essere chiare, pratiche e adatte a bambini di 6-7 anni (obiettivo e svolgimento in poche frasi).`;
+
+    let promptUtente = `Linee guida del coach: ${lineeGuida}`;
+
+    if (campoUsaLibreriaAI.checked) {
+      const elencoLibreria = Object.values(eserciziLibreria)
+        .map(e => `${e.nome} (${e.cat})`)
+        .slice(0, 150)
+        .join(", ");
+      promptUtente += `\n\nEsercizi già disponibili nella libreria del coach (usali quando pertinenti, riscrivendo il nome esattamente uguale): ${elencoLibreria}`;
+    }
+
+    const rispostaTesto = await chiamaAI(promptSistema, promptUtente);
+    const dati = estraiJSON(rispostaTesto);
+
+    if (!dati.esercizi || !Array.isArray(dati.esercizi) || dati.esercizi.length === 0) {
+      throw new Error("L'AI non ha generato esercizi validi. Riprova.");
+    }
+
+    allenamentoGeneratoAI = dati;
+
+    const durataTotale = dati.esercizi.reduce((s, e) => s + Number(e.dur || 0), 0);
+    risultatoAI.innerHTML = `
+      <div class="allenamento-card">
+        <h3>${dati.titolo || "Allenamento generato"}</h3>
+        <p style="font-size:0.85rem; color:var(--testo-chiaro); margin-bottom:8px;">⏱️ ${durataTotale} min totali</p>
+        ${dati.note ? `<p style="font-size:0.85rem; font-style:italic; margin-bottom:8px;">${dati.note}</p>` : ""}
+        ${dati.esercizi.map(e => `
+          <div class="esercizio-riga" title="${(e.desc || "").replace(/"/g, "&quot;")}">
+            <span>${e.nome}</span>
+            <span class="tag-cat">${e.cat} · ${e.dur}'</span>
+          </div>
+        `).join("")}
+      </div>
+    `;
+    azioniRisultatoAI.style.display = "block";
+  } catch (err) {
+    risultatoAI.innerHTML = `<p style="color:var(--rosso);">${err.message}</p>`;
+  } finally {
+    btnGeneraAllenamentoAI.disabled = false;
+    btnGeneraAllenamentoAI.textContent = "✨ Genera allenamento";
+  }
+});
+
+btnUsaAllenamentoAI.addEventListener("click", async () => {
+  if (!allenamentoGeneratoAI) return;
+
+  // Se richiesto, salvo nella libreria i nuovi esercizi (quelli non già presenti per nome)
+  if (campoSalvaEserciziAI.checked) {
+    const nomiEsistenti = new Set(Object.values(eserciziLibreria).map(e => (e.nome || "").trim().toLowerCase()));
+    for (const es of allenamentoGeneratoAI.esercizi) {
+      const nomeNorm = (es.nome || "").trim().toLowerCase();
+      if (nomeNorm && !nomiEsistenti.has(nomeNorm)) {
+        try {
+          const nuovoRef = push(ref(db, "exercises"));
+          const nuovoEsercizio = { nome: es.nome, cat: es.cat, dur: es.dur, desc: es.desc || "", players: "", foto: "", ts: Date.now() };
+          await set(nuovoRef, nuovoEsercizio);
+          eserciziLibreria[nuovoRef.key] = nuovoEsercizio;
+          nomiEsistenti.add(nomeNorm);
+        } catch (err) {
+          console.error("Errore salvataggio esercizio AI:", err);
+        }
+      }
+    }
+  }
+
+  // Precompilo il modulo standard "nuovo allenamento" con i dati generati
+  overlayGeneraAI.classList.remove("attivo");
+  apriNuovoAllenamento();
+  document.getElementById("campoTitolo").value = allenamentoGeneratoAI.titolo || "";
+  document.getElementById("campoNote").value = allenamentoGeneratoAI.note || "";
+  listaEserciziForm.innerHTML = "";
+  allenamentoGeneratoAI.esercizi.forEach(e => listaEserciziForm.appendChild(creaRigaEsercizio(e)));
+});
 
 // Se arrivo da un link diretto (es. dalla Dashboard) con ?id=..., apro subito quella scheda
 const parametriURL = new URLSearchParams(window.location.search);

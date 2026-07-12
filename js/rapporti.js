@@ -1,5 +1,6 @@
 import { proteggiPagina, collegaLogout } from "./auth-guard.js";
 import { db, ref, get, set, push, update, remove } from "./firebase-config.js";
+import { chiamaAI } from "./ai.js";
 
 await proteggiPagina();
 collegaLogout();
@@ -136,13 +137,17 @@ function renderDettaglioGiocatore(key) {
   dettaglioRapporti.innerHTML = `
     <div class="rapporti-dettaglio-header">
       <img src="${foto}" alt="${nome}" onerror="this.style.opacity=0">
-      <div>
+      <div style="flex:1;">
         <h3 style="font-size:1.1rem;">${nome}</h3>
         <div style="font-size:0.85rem; color:var(--testo-chiaro);">${ruolo} · ${idsRapp.length} rapporti totali</div>
       </div>
+      <button class="btn-secondary" id="btnConsigliAI">💡 Chiedi consigli all'AI</button>
     </div>
+    <div id="risultatoConsigliAI"></div>
     ${cardsHtml}
   `;
+
+  document.getElementById("btnConsigliAI").addEventListener("click", () => chiediConsigliAI(key, idsRapp));
 
   dettaglioRapporti.querySelectorAll(".btn-modifica-rapp").forEach(btn => {
     btn.addEventListener("click", () => apriModificaRapporto(btn.dataset.id));
@@ -252,6 +257,51 @@ async function eliminaRapporto() {
     chiudiModale();
   } catch (err) {
     alert("Errore nell'eliminazione: " + err.message);
+  }
+}
+
+// ============================================
+// CONSIGLI AI SUL GIOCATORE
+// ============================================
+async function chiediConsigliAI(key, idsRapp) {
+  const contenitore = document.getElementById("risultatoConsigliAI");
+  const btn = document.getElementById("btnConsigliAI");
+  const nome = playersCache[key]?.nome || rapportiCache[idsRapp[0]]?.giocatoreNome || "il giocatore";
+
+  btn.disabled = true;
+  btn.textContent = "Analisi in corso...";
+  contenitore.innerHTML = `<div class="rapporto-card" style="color:var(--testo-chiaro);">🤖 Sto analizzando i rapporti di ${nome}...</div>`;
+
+  try {
+    const rapportiOrdinati = [...idsRapp].sort((a, b) => (rapportiCache[a].data || "").localeCompare(rapportiCache[b].data || ""));
+    const testoRapporti = rapportiOrdinati.map(id => {
+      const r = rapportiCache[id];
+      return `Data ${formattaData(r.data)} (voto ${r.voto || "-"}/5, contesto: ${r.contesto || "-"}):
+Comportamento: ${r.comportamento || "-"}
+Tecnica: ${r.tecnica || "-"}
+Da migliorare: ${r.migliorare || "-"}
+Note: ${r.note || "-"}`;
+    }).join("\n\n");
+
+    const promptSistema = `Sei un mister esperto di settore giovanile del calcio, categoria "Primi Calci" (bambini di 6-7 anni), con approccio pedagogico ispirato ad Atalanta, Milan e Juventus.
+Analizza la cronologia di osservazioni su un singolo bambino e fornisci consigli pratici e concreti al coach: cosa allenare nelle prossime sessioni, come valorizzare i punti di forza, come lavorare con delicatezza sugli aspetti da migliorare (ricorda che sono bambini piccoli, l'approccio dev'essere sempre positivo e mai punitivo).
+Rispondi in italiano, con un breve paragrafo introduttivo e poi un elenco puntato di 3-5 consigli concreti. Non usare markdown con asterischi, scrivi in testo semplice.`;
+
+    const promptUtente = `Cronologia rapporti su ${nome}:\n\n${testoRapporti}`;
+
+    const risposta = await chiamaAI(promptSistema, promptUtente);
+
+    contenitore.innerHTML = `
+      <div class="rapporto-card" style="border-left:4px solid var(--rosso);">
+        <div class="rc-label" style="margin-bottom:8px;">💡 Consigli AI per ${nome}</div>
+        <p style="white-space:pre-wrap; line-height:1.6;">${risposta}</p>
+      </div>
+    `;
+  } catch (err) {
+    contenitore.innerHTML = `<div class="rapporto-card" style="color:var(--rosso);">${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "💡 Chiedi consigli all'AI";
   }
 }
 
