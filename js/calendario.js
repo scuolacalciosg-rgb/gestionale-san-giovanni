@@ -112,7 +112,9 @@ function costruisciMappaEventi() {
 
   Object.keys(partiteCache).forEach(id => {
     const p = partiteCache[id];
-    aggiungi(p.data, { tipo: "partita", id, titolo: `vs ${p.avversario || "?"}`, ora: p.orarioInizio, extra: p.campo });
+    const risultato = (p.golNostri !== null && p.golNostri !== undefined && p.golAvversario !== null && p.golAvversario !== undefined)
+      ? ` (${p.golNostri}-${p.golAvversario})` : "";
+    aggiungi(p.data, { tipo: "partita", id, titolo: `vs ${p.avversario || "?"}${risultato}`, ora: p.orarioInizio, extra: p.campo });
   });
 
   Object.keys(torneiCache).forEach(id => {
@@ -358,6 +360,8 @@ function apriNuovoEvento() {
   document.getElementById("campoRitrovoPar").value = "";
   document.getElementById("campoInizioPar").value = "";
   document.getElementById("campoNotePar").value = "";
+  document.getElementById("campoGolNostriPar").value = "";
+  document.getElementById("campoGolAvversarioPar").value = "";
   listaConvocatiPartita.innerHTML = "";
   listaConvocatiPartita.appendChild(creaListaConvocati());
 
@@ -391,6 +395,8 @@ function apriModificaPartita(id) {
   document.getElementById("campoRitrovoPar").value = p.orarioRitrovo || "";
   document.getElementById("campoInizioPar").value = p.orarioInizio || "";
   document.getElementById("campoNotePar").value = p.note || "";
+  document.getElementById("campoGolNostriPar").value = (p.golNostri !== null && p.golNostri !== undefined) ? p.golNostri : "";
+  document.getElementById("campoGolAvversarioPar").value = (p.golAvversario !== null && p.golAvversario !== undefined) ? p.golAvversario : "";
   listaConvocatiPartita.innerHTML = "";
   listaConvocatiPartita.appendChild(creaListaConvocati(p.convocati || []));
 
@@ -477,6 +483,8 @@ async function salvaEvento() {
         orarioRitrovo: document.getElementById("campoRitrovoPar").value,
         orarioInizio: document.getElementById("campoInizioPar").value,
         note: document.getElementById("campoNotePar").value.trim(),
+        golNostri: document.getElementById("campoGolNostriPar").value !== "" ? Number(document.getElementById("campoGolNostriPar").value) : null,
+        golAvversario: document.getElementById("campoGolAvversarioPar").value !== "" ? Number(document.getElementById("campoGolAvversarioPar").value) : null,
         convocati: leggiConvocati(listaConvocatiPartita)
       };
       if (!dati.avversario || !dati.data) { alert("Avversario e data sono obbligatori."); return; }

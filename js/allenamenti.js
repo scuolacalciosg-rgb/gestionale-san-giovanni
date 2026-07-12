@@ -21,7 +21,21 @@ const btnAggiungiDaLibreria = document.getElementById("btnAggiungiDaLibreria");
 
 let allenamentiCache = {};
 let eserciziLibreria = {}; // id -> {nome, cat, dur, desc, ...}
+let playersCache = {};
 let idAllenamentoCorrente = null;
+let idAllenamentoPresenze = null;
+
+const STATI_PRESENZA = ["none", "presente", "assente", "giustificato"];
+const ETICHETTE_PRESENZA = { none: "Non specificato", presente: "Presente", assente: "Assente", giustificato: "Giustificato" };
+
+async function caricaPlayers() {
+  try {
+    const snap = await get(ref(db, "players"));
+    playersCache = snap.exists() ? snap.val() : {};
+  } catch (err) {
+    console.error("Errore caricamento giocatori:", err);
+  }
+}
 
 const CATEGORIE_ESERCIZIO = ["Riscaldamento", "Velocità", "Coordinativo", "Passaggi", "Conduzione", "Tiro", "Situazioni"];
 
@@ -180,6 +194,7 @@ function renderLista() {
           }).join("")}
           <div style="margin-top:12px; display:flex; gap:8px;">
             <button class="btn-secondary btn-modifica" data-id="${id}">Modifica</button>
+            <button class="btn-secondary btn-presenze" data-id="${id}">👥 Presenze</button>
             <button class="btn-secondary btn-stampa" data-id="${id}">🖨️ Stampa</button>
           </div>
         </div>
@@ -211,6 +226,13 @@ function renderLista() {
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
       apriModificaAllenamento(btn.dataset.id);
+    });
+  });
+
+  listaAllenamenti.querySelectorAll(".btn-presenze").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      apriPresenze(btn.dataset.id);
     });
   });
 
@@ -280,6 +302,80 @@ function stampaAllenamento(id) {
   finestra.focus();
   setTimeout(() => finestra.print(), 300);
 }
+
+// ============================================
+// PRESENZE ALLENAMENTO
+// ============================================
+const overlayPresenze = document.getElementById("overlayPresenze");
+const modaleTitoloPresenze = document.getElementById("modaleTitoloPresenze");
+const listaPresenze = document.getElementById("listaPresenze");
+const btnAnnullaPresenze = document.getElementById("btnAnnullaPresenze");
+const btnSalvaPresenze = document.getElementById("btnSalvaPresenze");
+
+async function apriPresenze(id) {
+  idAllenamentoPresenze = id;
+  const a = allenamentiCache[id];
+  modaleTitoloPresenze.textContent = `Presenze - ${a.titolo || "Allenamento"} (${formattaData(a.data)})`;
+
+  let presenzeEsistenti = {};
+  try {
+    const snap = await get(ref(db, `presenze/t_${id}`));
+    presenzeEsistenti = snap.exists() ? snap.val() : {};
+  } catch (err) {
+    console.error("Errore caricamento presenze:", err);
+  }
+
+  const ids = Object.keys(playersCache).sort((a, b) => (playersCache[a].nome || "").localeCompare(playersCache[b].nome || ""));
+  listaPresenze.innerHTML = ids.map(pid => {
+    const p = playersCache[pid];
+    const statoAttuale = presenzeEsistenti[pid] || "none";
+    return `
+      <div class="presenza-riga" data-id="${pid}">
+        <span class="pr-nome">${p.nome}</span>
+        <select class="pr-stato">
+          ${STATI_PRESENZA.map(s => `<option value="${s}" ${s === statoAttuale ? "selected" : ""}>${ETICHETTE_PRESENZA[s]}</option>`).join("")}
+        </select>
+      </div>
+    `;
+  }).join("");
+
+  overlayPresenze.classList.add("attivo");
+}
+
+btnAnnullaPresenze.addEventListener("click", () => {
+  overlayPresenze.classList.remove("attivo");
+  idAllenamentoPresenze = null;
+});
+
+overlayPresenze.addEventListener("click", (e) => {
+  if (e.target === overlayPresenze) {
+    overlayPresenze.classList.remove("attivo");
+    idAllenamentoPresenze = null;
+  }
+});
+
+btnSalvaPresenze.addEventListener("click", async () => {
+  if (!idAllenamentoPresenze) return;
+
+  const dati = {};
+  listaPresenze.querySelectorAll(".presenza-riga").forEach(riga => {
+    dati[riga.dataset.id] = riga.querySelector(".pr-stato").value;
+  });
+
+  btnSalvaPresenze.disabled = true;
+  btnSalvaPresenze.textContent = "Salvataggio...";
+
+  try {
+    await set(ref(db, `presenze/t_${idAllenamentoPresenze}`), dati);
+    overlayPresenze.classList.remove("attivo");
+    idAllenamentoPresenze = null;
+  } catch (err) {
+    alert("Errore nel salvataggio delle presenze: " + err.message);
+  } finally {
+    btnSalvaPresenze.disabled = false;
+    btnSalvaPresenze.textContent = "Salva";
+  }
+});
 
 // ============================================
 // FORM ESERCIZI DINAMICO
@@ -435,6 +531,7 @@ overlayAllenamento.addEventListener("click", (e) => {
 
 caricaAllenamenti();
 caricaLibreriaEsercizi();
+caricaPlayers();
 
 // ============================================
 // GENERA ALLENAMENTO CON AI
