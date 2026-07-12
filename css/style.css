@@ -1254,6 +1254,113 @@ body {
   transform: scale(1.05);
 }
 
+/* ---------- STATISTICHE ---------- */
+.statistiche-colonne {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 10px;
+}
+
+.classifica-riga {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bianco);
+  border-radius: 10px;
+  padding: 10px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--ombra);
+}
+
+.classifica-riga .posizione {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--grigio-sfondo);
+  color: var(--testo);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.classifica-riga:nth-child(1) .posizione { background: #ffd700; }
+.classifica-riga:nth-child(2) .posizione { background: #c0c0c0; }
+.classifica-riga:nth-child(3) .posizione { background: #cd7f32; color: #fff; }
+
+.classifica-riga .nome-riga {
+  flex: 1;
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.classifica-riga .valore-riga {
+  background: var(--verde);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  padding: 3px 12px;
+  border-radius: 10px;
+}
+
+.tabella-presenze {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bianco);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: var(--ombra);
+}
+
+.tabella-presenze th,
+.tabella-presenze td {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.88rem;
+  border-bottom: 1px solid var(--bordo);
+}
+
+.tabella-presenze th {
+  background: var(--grigio-sfondo);
+  color: var(--testo-chiaro);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tabella-presenze tr:last-child td {
+  border-bottom: none;
+}
+
+.barra-presenza {
+  display: inline-block;
+  width: 80px;
+  height: 8px;
+  background: var(--grigio-sfondo);
+  border-radius: 4px;
+  overflow: hidden;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+.barra-presenza-riempimento {
+  height: 100%;
+  background: var(--verde);
+}
+
+@media (max-width: 750px) {
+  .statistiche-colonne {
+    grid-template-columns: 1fr;
+  }
+  .tabella-presenze {
+    display: block;
+    overflow-x: auto;
+  }
+}
+
 @media (max-width: 750px) {
   .dash-colonne {
     grid-template-columns: 1fr;
