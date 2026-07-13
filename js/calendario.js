@@ -329,6 +329,235 @@ function leggiPartiteTorneo() {
 }
 
 // ============================================
+// FORMAZIONE E ROTAZIONI (partita)
+// ============================================
+const campoNumPortiere = document.getElementById("campoNumPortiere");
+const campoNumDifensori = document.getElementById("campoNumDifensori");
+const campoNumCentrocampisti = document.getElementById("campoNumCentrocampisti");
+const campoNumAttaccanti = document.getElementById("campoNumAttaccanti");
+const listaTempiFormazione = document.getElementById("listaTempiFormazione");
+const btnAggiungiTempo = document.getElementById("btnAggiungiTempo");
+
+// Popolo le select numeriche dei ruoli (0-6)
+[campoNumDifensori, campoNumCentrocampisti, campoNumAttaccanti].forEach(sel => {
+  sel.innerHTML = Array.from({ length: 7 }, (_, i) => `<option value="${i}">${i}</option>`).join("");
+});
+campoNumDifensori.value = 2;
+campoNumCentrocampisti.value = 2;
+campoNumAttaccanti.value = 1;
+
+function elencoConvocatiSelezionati() {
+  return Array.from(listaConvocatiPartita.querySelectorAll(".conv-check"))
+    .filter(chk => chk.checked)
+    .map(chk => ({ id: chk.dataset.id, nome: chk.dataset.nome }));
+}
+
+function creaRigaRuolo(ruoloNome, count, valoriSalvati = []) {
+  const riga = document.createElement("div");
+  riga.className = "riga-ruolo-campo";
+  riga.dataset.ruolo = ruoloNome;
+  const convocati = elencoConvocatiSelezionati();
+  for (let i = 0; i < count; i++) {
+    const sel = document.createElement("select");
+    sel.className = "sel-posizione-campo";
+    sel.innerHTML = `<option value="">— vuoto —</option>` +
+      convocati.map(c => `<option value="${c.id}" ${valoriSalvati[i] === c.id ? "selected" : ""}>${c.nome}</option>`).join("");
+    riga.appendChild(sel);
+  }
+  return riga;
+}
+
+function creaBloccoTempo(datiTempo = {}) {
+  const blocco = document.createElement("div");
+  blocco.className = "tempo-formazione-block";
+
+  const header = document.createElement("div");
+  header.className = "tf-header";
+  header.innerHTML = `
+    <input type="text" class="tf-nome" placeholder="Es. 1° tempo" value="${datiTempo.nome || ""}">
+    <button type="button" class="btn-rimuovi-tempo">✕ Rimuovi tempo</button>
+  `;
+  header.querySelector(".btn-rimuovi-tempo").addEventListener("click", () => blocco.remove());
+
+  const campo = document.createElement("div");
+  campo.className = "campo-calcio";
+  campo.appendChild(creaRigaRuolo("attaccanti", Number(campoNumAttaccanti.value), datiTempo.attaccanti || []));
+  campo.appendChild(creaRigaRuolo("centrocampisti", Number(campoNumCentrocampisti.value), datiTempo.centrocampisti || []));
+  campo.appendChild(creaRigaRuolo("difensori", Number(campoNumDifensori.value), datiTempo.difensori || []));
+  if (Number(campoNumPortiere.value) === 1) {
+    campo.appendChild(creaRigaRuolo("portiere", 1, datiTempo.portiere ? [datiTempo.portiere] : []));
+  }
+
+  blocco.appendChild(header);
+  blocco.appendChild(campo);
+  return blocco;
+}
+
+btnAggiungiTempo.addEventListener("click", () => {
+  const numeroTempo = listaTempiFormazione.children.length + 1;
+  listaTempiFormazione.appendChild(creaBloccoTempo({ nome: `${numeroTempo}° tempo` }));
+});
+
+// Se cambio i numeri di ruolo o i convocati, rigenero i campi già creati mantenendo i nomi dei tempi
+function rigeneraTuttiITempi() {
+  const nomiTempi = Array.from(listaTempiFormazione.querySelectorAll(".tf-nome")).map(i => i.value);
+  listaTempiFormazione.innerHTML = "";
+  nomiTempi.forEach(nome => listaTempiFormazione.appendChild(creaBloccoTempo({ nome })));
+}
+[campoNumPortiere, campoNumDifensori, campoNumCentrocampisti, campoNumAttaccanti].forEach(sel => {
+  sel.addEventListener("change", rigeneraTuttiITempi);
+});
+listaConvocatiPartita.addEventListener("change", (e) => {
+  if (e.target.classList.contains("conv-check")) rigeneraTuttiITempi();
+});
+
+function leggiFormazione() {
+  const tempi = Array.from(listaTempiFormazione.querySelectorAll(".tempo-formazione-block")).map(blocco => {
+    const leggiRuolo = (ruolo) => {
+      const riga = blocco.querySelector(`.riga-ruolo-campo[data-ruolo="${ruolo}"]`);
+      if (!riga) return [];
+      return Array.from(riga.querySelectorAll("select")).map(s => s.value).filter(Boolean);
+    };
+    return {
+      nome: blocco.querySelector(".tf-nome").value.trim() || "Tempo",
+      portiere: leggiRuolo("portiere")[0] || "",
+      difensori: leggiRuolo("difensori"),
+      centrocampisti: leggiRuolo("centrocampisti"),
+      attaccanti: leggiRuolo("attaccanti")
+    };
+  });
+
+  return {
+    numPortiere: Number(campoNumPortiere.value),
+    numDifensori: Number(campoNumDifensori.value),
+    numCentrocampisti: Number(campoNumCentrocampisti.value),
+    numAttaccanti: Number(campoNumAttaccanti.value),
+    tempi
+  };
+}
+
+function caricaFormazione(formazione) {
+  listaTempiFormazione.innerHTML = "";
+  if (!formazione) return;
+  campoNumPortiere.value = formazione.numPortiere ?? 1;
+  campoNumDifensori.value = formazione.numDifensori ?? 2;
+  campoNumCentrocampisti.value = formazione.numCentrocampisti ?? 2;
+  campoNumAttaccanti.value = formazione.numAttaccanti ?? 1;
+  (formazione.tempi || []).forEach(t => listaTempiFormazione.appendChild(creaBloccoTempo(t)));
+}
+
+// ============================================
+// FORMAZIONE E ROTAZIONI (per le partite)
+// ============================================
+const listaTempiFormazione = document.getElementById("listaTempiFormazione");
+const btnAggiungiTempo = document.getElementById("btnAggiungiTempo");
+const btnAggiornaSchema = document.getElementById("btnAggiornaSchema");
+const numPortiereForm = document.getElementById("numPortiereForm");
+const numDifensoriForm = document.getElementById("numDifensoriForm");
+const numCentrocampistiForm = document.getElementById("numCentrocampistiForm");
+const numAttaccantiForm = document.getElementById("numAttaccantiForm");
+
+function elencoConvocatiCorrente() {
+  return leggiConvocati(listaConvocatiPartita);
+}
+
+function creaSlotSelect(convocati, valoreSelezionato) {
+  const select = document.createElement("select");
+  select.className = "slot-select";
+  select.innerHTML = `<option value="">—</option>` +
+    convocati.map(c => `<option value="${c.giocatoreKey}" ${c.giocatoreKey === valoreSelezionato ? "selected" : ""}>${c.giocatoreNome}</option>`).join("");
+  return select;
+}
+
+function creaRigaRuolo(etichetta, quantita, valoriSalvati = []) {
+  const riga = document.createElement("div");
+  riga.className = "riga-ruolo-campo";
+  riga.dataset.ruolo = etichetta;
+  const convocati = elencoConvocatiCorrente();
+  for (let i = 0; i < quantita; i++) {
+    const wrapper = document.createElement("div");
+    wrapper.className = "slot-giocatore";
+    wrapper.appendChild(creaSlotSelect(convocati, valoriSalvati[i] || ""));
+    riga.appendChild(wrapper);
+  }
+  return riga;
+}
+
+function creaBloccoTempo(datiTempo = {}) {
+  const blocco = document.createElement("div");
+  blocco.className = "blocco-tempo";
+
+  const header = document.createElement("div");
+  header.className = "blocco-tempo-header";
+  header.innerHTML = `
+    <input type="text" class="nome-tempo" value="${datiTempo.nome || "1° tempo"}">
+    <button type="button" class="btn-rimuovi-tempo">✕ Rimuovi tempo</button>
+  `;
+  header.querySelector(".btn-rimuovi-tempo").addEventListener("click", () => blocco.remove());
+
+  const campo = document.createElement("div");
+  campo.className = "campo-calcio";
+
+  const numPortiere = Number(numPortiereForm.value);
+  const numDifensori = Number(numDifensoriForm.value);
+  const numCentrocampisti = Number(numCentrocampistiForm.value);
+  const numAttaccanti = Number(numAttaccantiForm.value);
+
+  campo.appendChild(creaRigaRuolo("attaccanti", numAttaccanti, datiTempo.attaccanti || []));
+  campo.appendChild(creaRigaRuolo("centrocampisti", numCentrocampisti, datiTempo.centrocampisti || []));
+  campo.appendChild(creaRigaRuolo("difensori", numDifensori, datiTempo.difensori || []));
+  campo.appendChild(creaRigaRuolo("portiere", numPortiere, datiTempo.portiere ? [datiTempo.portiere] : []));
+
+  blocco.appendChild(header);
+  blocco.appendChild(campo);
+  return blocco;
+}
+
+btnAggiungiTempo.addEventListener("click", () => {
+  const numeroTempo = listaTempiFormazione.children.length + 1;
+  listaTempiFormazione.appendChild(creaBloccoTempo({ nome: `${numeroTempo}° tempo` }));
+});
+
+// Quando cambio lo schema (numero giocatori per ruolo), ricreo tutti i blocchi tempo mantenendo i nomi
+btnAggiornaSchema.addEventListener("click", () => {
+  const bloccchiEsistenti = Array.from(listaTempiFormazione.querySelectorAll(".blocco-tempo"));
+  const nomiTempi = bloccchiEsistenti.map(b => b.querySelector(".nome-tempo").value);
+  listaTempiFormazione.innerHTML = "";
+  if (nomiTempi.length === 0) nomiTempi.push("1° tempo");
+  nomiTempi.forEach(nome => listaTempiFormazione.appendChild(creaBloccoTempo({ nome })));
+});
+
+function leggiFormazione() {
+  const numPortiere = Number(numPortiereForm.value);
+  const numDifensori = Number(numDifensoriForm.value);
+  const numCentrocampisti = Number(numCentrocampistiForm.value);
+  const numAttaccanti = Number(numAttaccantiForm.value);
+
+  const tempi = Array.from(listaTempiFormazione.querySelectorAll(".blocco-tempo")).map(blocco => {
+    const leggiRuolo = (ruolo) => Array.from(blocco.querySelectorAll(`.riga-ruolo-campo[data-ruolo="${ruolo}"] select`)).map(s => s.value).filter(Boolean);
+    return {
+      nome: blocco.querySelector(".nome-tempo").value.trim() || "Tempo",
+      portiere: leggiRuolo("portiere")[0] || "",
+      difensori: leggiRuolo("difensori"),
+      centrocampisti: leggiRuolo("centrocampisti"),
+      attaccanti: leggiRuolo("attaccanti")
+    };
+  });
+
+  return { numPortiere, numDifensori, numCentrocampisti, numAttaccanti, tempi };
+}
+
+function precompilaFormazione(formazione) {
+  numPortiereForm.value = formazione?.numPortiere ?? 1;
+  numDifensoriForm.value = formazione?.numDifensori ?? 2;
+  numCentrocampistiForm.value = formazione?.numCentrocampisti ?? 2;
+  numAttaccantiForm.value = formazione?.numAttaccanti ?? 1;
+  listaTempiFormazione.innerHTML = "";
+  const tempi = formazione?.tempi?.length ? formazione.tempi : [{ nome: "1° tempo" }];
+  tempi.forEach(t => listaTempiFormazione.appendChild(creaBloccoTempo(t)));
+}
+
+// ============================================
 // GESTIONE MODALE: TOGGLE SEZIONI IN BASE AL TIPO
 // ============================================
 const sezioni = {
@@ -364,6 +593,13 @@ function apriNuovoEvento() {
   document.getElementById("campoGolAvversarioPar").value = "";
   listaConvocatiPartita.innerHTML = "";
   listaConvocatiPartita.appendChild(creaListaConvocati());
+  precompilaFormazione(null);
+  caricaFormazione(null);
+  listaTempiFormazione.innerHTML = "";
+  campoNumPortiere.value = 1;
+  campoNumDifensori.value = 2;
+  campoNumCentrocampisti.value = 2;
+  campoNumAttaccanti.value = 1;
 
   document.getElementById("campoTitoloTor").value = "";
   document.getElementById("campoDataTor").value = giornoSelezionato;
@@ -399,6 +635,8 @@ function apriModificaPartita(id) {
   document.getElementById("campoGolAvversarioPar").value = (p.golAvversario !== null && p.golAvversario !== undefined) ? p.golAvversario : "";
   listaConvocatiPartita.innerHTML = "";
   listaConvocatiPartita.appendChild(creaListaConvocati(p.convocati || []));
+  precompilaFormazione(p.formazione);
+  caricaFormazione(p.formazione);
 
   btnEliminaEvento.style.display = "inline-block";
   overlayEvento.classList.add("attivo");
@@ -485,7 +723,8 @@ async function salvaEvento() {
         note: document.getElementById("campoNotePar").value.trim(),
         golNostri: document.getElementById("campoGolNostriPar").value !== "" ? Number(document.getElementById("campoGolNostriPar").value) : null,
         golAvversario: document.getElementById("campoGolAvversarioPar").value !== "" ? Number(document.getElementById("campoGolAvversarioPar").value) : null,
-        convocati: leggiConvocati(listaConvocatiPartita)
+        convocati: leggiConvocati(listaConvocatiPartita),
+        formazione: leggiFormazione()
       };
       if (!dati.avversario || !dati.data) { alert("Avversario e data sono obbligatori."); return; }
       if (eventoInModifica?.tipo === "partita") {
