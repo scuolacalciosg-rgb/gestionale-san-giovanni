@@ -1202,6 +1202,176 @@ body {
   padding: 4px 8px;
 }
 
+/* ---------- FORMAZIONE / CAMPO DA CALCIO ---------- */
+.blocco-tempo {
+  background: var(--grigio-sfondo);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.blocco-tempo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.blocco-tempo-header input.nome-tempo {
+  font-weight: 600;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  padding: 4px;
+  border-bottom: 1px dashed var(--bordo);
+}
+
+.campo-calcio {
+  background: linear-gradient(180deg, #2e7d32 0%, #1b5e20 100%);
+  border-radius: 8px;
+  padding: 14px 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.campo-calcio::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8px;
+  right: 8px;
+  height: 1px;
+  background: rgba(255,255,255,0.35);
+}
+
+.campo-calcio::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.riga-ruolo-campo {
+  display: flex;
+  justify-content: space-around;
+  gap: 6px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  flex-wrap: wrap;
+}
+
+.riga-ruolo-campo:last-child {
+  margin-bottom: 0;
+}
+
+.slot-giocatore select {
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.5);
+  font-size: 0.78rem;
+  max-width: 110px;
+  background: rgba(255,255,255,0.92);
+}
+
+.btn-rimuovi-tempo {
+  background: none;
+  border: none;
+  color: var(--rosso);
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* ---------- FORMAZIONE / CAMPO DA CALCIO ---------- */
+.tempo-formazione-block {
+  background: var(--grigio-sfondo);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 14px;
+}
+
+.tempo-formazione-block .tf-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.tempo-formazione-block .tf-header input {
+  flex: 1;
+  padding: 6px 8px;
+  border: 1px solid var(--bordo);
+  border-radius: 6px;
+  font-weight: 600;
+}
+
+.campo-calcio {
+  background: linear-gradient(180deg, #2e8b3d 0%, #267032 100%);
+  border-radius: 10px;
+  padding: 14px 10px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 320px;
+}
+
+.campo-calcio::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 8%;
+  right: 8%;
+  height: 1px;
+  background: rgba(255,255,255,0.4);
+}
+
+.campo-calcio::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.riga-ruolo-campo {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
+}
+
+.riga-ruolo-campo select {
+  min-width: 90px;
+  padding: 5px 6px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.5);
+  font-size: 0.78rem;
+  background: rgba(255,255,255,0.92);
+}
+
+.btn-rimuovi-tempo {
+  background: none;
+  border: 1px solid var(--bordo);
+  color: var(--rosso);
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
 .presenza-riga {
   display: flex;
   align-items: center;
