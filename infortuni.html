@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Infortuni - Gestionale San Giovanni</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <div class="app-layout">
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/stemma.png" alt="Stemma San Giovanni">
+      <span>Gestionale<br>San Giovanni</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="dashboard.html">🏠 Dashboard</a>
+      <a href="giocatori.html">👥 Giocatori</a>
+      <a href="allenamenti.html">📋 Allenamenti</a>
+      <a href="esercizi.html">🏃 Esercizi</a>
+      <a href="rapporti.html">📝 Rapporti</a>
+      <a href="infortuni.html" class="active">🩹 Infortuni</a>
+      <a href="calendario.html">📅 Calendario</a>
+      <a href="galleria.html">📸 Galleria</a>
+      <a href="statistiche.html">📊 Statistiche</a>
+      <a href="stagioni.html">🗓️ Stagioni</a>
+    </nav>
+    <div class="sidebar-logout">
+      <button id="btnLogout">Esci</button>
+    </div>
+  </aside>
+
+  <div class="main-area">
+    <div class="topbar">
+      <div class="topbar-ricerca">
+        <input type="text" id="ricercaGlobale" placeholder="Cerca giocatore o allenamento...">
+        <div class="topbar-risultati" id="topbarRisultati"></div>
+      </div>
+    </div>
+
+  <div class="container">
+    <div class="section-title">
+      <h2>Infortuni</h2>
+      <button class="btn-primary" id="btnNuovoInfortunio">+ Nuovo infortunio</button>
+    </div>
+
+    <div class="cards-grid" id="cardsInfortuni">
+      <div class="loading">Caricamento...</div>
+    </div>
+
+    <div class="rapporti-layout">
+      <div class="rapporti-lista-giocatori" id="listaGiocatoriInfortuni">
+        <div class="loading">Caricamento...</div>
+      </div>
+      <div class="rapporti-dettaglio" id="dettaglioInfortuni">
+        <p style="color:var(--testo-chiaro); text-align:center; padding:40px 20px;">👈 Seleziona un giocatore per vedere il suo storico infortuni</p>
+      </div>
+    </div>
+  </div>
+  </div>
+  </div>
+
+  <!-- ===== MODALE INFORTUNIO ===== -->
+  <div class="overlay" id="overlayInfortunio">
+    <div class="modale" style="max-width:520px;">
+      <h2 id="modaleTitoloInf">Nuovo infortunio</h2>
+
+      <div class="campo">
+        <label>Giocatore</label>
+        <select id="campoGiocatoreInf"></select>
+      </div>
+
+      <div style="display:flex; gap:12px;">
+        <div class="campo" style="flex:1;">
+          <label>Data inizio</label>
+          <input type="date" id="campoDataInizioInf">
+        </div>
+        <div class="campo" style="flex:1;">
+          <label>Data fine (guarigione)</label>
+          <input type="date" id="campoDataFineInf">
+        </div>
+      </div>
+      <p style="font-size:0.78rem; color:var(--testo-chiaro); margin-top:-8px; margin-bottom:14px;">Lascia vuota la data di fine se l'infortunio è ancora in corso.</p>
+
+      <div class="campo">
+        <label>Tipo di infortunio</label>
+        <input type="text" id="campoTipoInf" placeholder="Es. Distorsione caviglia, contusione...">
+      </div>
+
+      <div class="campo">
+        <label>Note</label>
+        <textarea id="campoNoteInf" rows="3" placeholder="Come è successo, indicazioni del medico, ecc..."></textarea>
+      </div>
+
+      <div class="modale-azioni">
+        <button class="btn-danger" id="btnEliminaInfortunio" style="display:none;">Elimina</button>
+        <button class="btn-secondary" id="btnAnnullaInfortunio">Annulla</button>
+        <button class="btn-primary" id="btnSalvaInfortunio">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/search.js"></script>
+  <script type="module" src="js/infortuni.js"></script>
+</body>
+</html>

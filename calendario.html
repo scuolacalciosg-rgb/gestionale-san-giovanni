@@ -20,6 +20,7 @@
       <a href="allenamenti.html">📋 Allenamenti</a>
       <a href="esercizi.html">🏃 Esercizi</a>
       <a href="rapporti.html">📝 Rapporti</a>
+      <a href="infortuni.html">🩹 Infortuni</a>
       <a href="calendario.html" class="active">📅 Calendario</a>
       <a href="galleria.html">📸 Galleria</a>
       <a href="statistiche.html">📊 Statistiche</a>
@@ -159,6 +160,58 @@
         <div class="campo">
           <label>Convocati (spunta i giocatori, aggiungi gol/assist se vuoi)</label>
           <div class="lista-convocati" id="listaConvocatiPartita"></div>
+        </div>
+
+        <div class="campo">
+          <label>⚽ Formazione e rotazioni</label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="margin:0; font-size:0.8rem;">Portiere</label>
+              <select id="numPortiereForm" style="width:60px; padding:6px;">
+                <option value="0">0</option>
+                <option value="1" selected>1</option>
+              </select>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="margin:0; font-size:0.8rem;">Difensori</label>
+              <input type="number" id="numDifensoriForm" min="0" max="6" value="2" style="width:55px; padding:6px;">
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="margin:0; font-size:0.8rem;">Centrocampisti</label>
+              <input type="number" id="numCentrocampistiForm" min="0" max="6" value="2" style="width:55px; padding:6px;">
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <label style="margin:0; font-size:0.8rem;">Attaccanti</label>
+              <input type="number" id="numAttaccantiForm" min="0" max="6" value="1" style="width:55px; padding:6px;">
+            </div>
+            <button type="button" class="btn-secondary" id="btnAggiornaSchema">Aggiorna schema</button>
+          </div>
+          <div id="listaTempiFormazione"></div>
+          <button type="button" class="btn-secondary" id="btnAggiungiTempo" style="margin-top:8px;">+ Aggiungi tempo</button>
+        </div>
+
+        <div class="campo">
+          <label>⚽ Formazione e rotazioni</label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <label style="font-size:0.7rem; color:var(--testo-chiaro);">Portiere</label>
+              <select id="campoNumPortiere" style="width:60px; padding:4px;"><option value="0">0</option><option value="1" selected>1</option></select>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <label style="font-size:0.7rem; color:var(--testo-chiaro);">Difensori</label>
+              <select id="campoNumDifensori" style="width:60px; padding:4px;"></select>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <label style="font-size:0.7rem; color:var(--testo-chiaro);">Centrocamp.</label>
+              <select id="campoNumCentrocampisti" style="width:60px; padding:4px;"></select>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:center;">
+              <label style="font-size:0.7rem; color:var(--testo-chiaro);">Attaccanti</label>
+              <select id="campoNumAttaccanti" style="width:60px; padding:4px;"></select>
+            </div>
+          </div>
+          <div id="listaTempiFormazione"></div>
+          <button type="button" class="btn-secondary" id="btnAggiungiTempo" style="margin-top:8px;">+ Aggiungi tempo/rotazione</button>
         </div>
       </div>
 
