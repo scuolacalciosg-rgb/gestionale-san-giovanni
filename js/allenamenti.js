@@ -186,7 +186,7 @@ function renderLista() {
             const desc = trovaDescrizioneEsercizio(e.nome, e.desc) || "Nessuna descrizione disponibile.";
             const descAttr = desc.replace(/"/g, "&quot;").replace(/\n/g, " ");
             return `
-              <div class="esercizio-riga" title="${descAttr}">
+              <div class="esercizio-riga apri-desc-esercizio" title="${descAttr}" data-nome="${e.nome.replace(/"/g, "&quot;")}" data-desc="${descAttr}">
                 <span>${e.nome}</span>
                 <span class="tag-cat">${e.cat} · ${e.dur}'</span>
               </div>
@@ -243,6 +243,29 @@ function renderLista() {
     });
   });
 }
+
+// ============================================
+// MODALE DESCRIZIONE ESERCIZIO (funziona anche al tocco su telefono)
+// ============================================
+const overlayDescEsercizio = document.getElementById("overlayDescEsercizio");
+const titoloDescEsercizio = document.getElementById("titoloDescEsercizio");
+const testoDescEsercizio = document.getElementById("testoDescEsercizio");
+const btnChiudiDescEsercizio = document.getElementById("btnChiudiDescEsercizio");
+
+// Delegazione eventi: funziona anche per le righe ricreate ad ogni render
+function apriDescEsercizioSeCliccato(e) {
+  const riga = e.target.closest(".apri-desc-esercizio");
+  if (!riga) return;
+  titoloDescEsercizio.textContent = riga.dataset.nome || "Esercizio";
+  testoDescEsercizio.textContent = riga.dataset.desc || "Nessuna descrizione disponibile.";
+  overlayDescEsercizio.classList.add("attivo");
+}
+listaAllenamenti.addEventListener("click", apriDescEsercizioSeCliccato);
+
+btnChiudiDescEsercizio.addEventListener("click", () => overlayDescEsercizio.classList.remove("attivo"));
+overlayDescEsercizio.addEventListener("click", (e) => {
+  if (e.target === overlayDescEsercizio) overlayDescEsercizio.classList.remove("attivo");
+});
 
 // ============================================
 // STAMPA ALLENAMENTO COMPLETO
@@ -545,6 +568,7 @@ const campoLineeGuidaAI = document.getElementById("campoLineeGuidaAI");
 const campoUsaLibreriaAI = document.getElementById("campoUsaLibreriaAI");
 const campoSalvaEserciziAI = document.getElementById("campoSalvaEserciziAI");
 const risultatoAI = document.getElementById("risultatoAI");
+risultatoAI.addEventListener("click", apriDescEsercizioSeCliccato);
 const azioniRisultatoAI = document.getElementById("azioniRisultatoAI");
 
 let allenamentoGeneratoAI = null;
@@ -614,7 +638,7 @@ Le descrizioni devono essere chiare, pratiche e adatte a bambini di 6-7 anni (ob
         <p style="font-size:0.85rem; color:var(--testo-chiaro); margin-bottom:8px;">⏱️ ${durataTotale} min totali</p>
         ${dati.note ? `<p style="font-size:0.85rem; font-style:italic; margin-bottom:8px;">${dati.note}</p>` : ""}
         ${dati.esercizi.map(e => `
-          <div class="esercizio-riga" title="${(e.desc || "").replace(/"/g, "&quot;")}">
+          <div class="esercizio-riga apri-desc-esercizio" title="${(e.desc || "").replace(/"/g, "&quot;")}" data-nome="${e.nome.replace(/"/g, "&quot;")}" data-desc="${(e.desc || "Nessuna descrizione disponibile.").replace(/"/g, "&quot;")}">
             <span>${e.nome}</span>
             <span class="tag-cat">${e.cat} · ${e.dur}'</span>
           </div>
