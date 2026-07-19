@@ -15,6 +15,15 @@ function formattaData(dataStr) {
   return `${giorno}/${mese}/${anno}`;
 }
 
+// Converte una data in "YYYY-MM-DD" usando le componenti LOCALI (non UTC),
+// per evitare lo sfasamento di un giorno che si verifica in Italia vicino alla mezzanotte
+function isoLocale(d) {
+  const anno = d.getFullYear();
+  const mese = String(d.getMonth() + 1).padStart(2, "0");
+  const giorno = String(d.getDate()).padStart(2, "0");
+  return `${anno}-${mese}-${giorno}`;
+}
+
 // ============================================
 // DATA DI OGGI (si aggiorna da sola ogni giorno)
 // ============================================
@@ -39,7 +48,7 @@ async function caricaVisiteScadenza() {
 
     const tra30gg = new Date();
     tra30gg.setDate(tra30gg.getDate() + 30);
-    const tra30ggStr = tra30gg.toISOString().split("T")[0];
+    const tra30ggStr = isoLocale(tra30gg);
 
     const inScadenza = players.filter(p => p.visita && p.visita <= tra30ggStr);
 
@@ -60,33 +69,51 @@ async function caricaVisiteScadenza() {
 }
 
 // ============================================
-// PROSSIMI 3 ALLENAMENTI (mini card cliccabili)
+// PROSSIMI 3 EVENTI (allenamenti + partite + tornei, mini card cliccabili)
 // ============================================
-async function caricaProssimiAllenamenti() {
+async function caricaProssimiEventi() {
   try {
-    const snap = await get(ref(db, "trainings"));
-    const trainings = snap.exists() ? snap.val() : {};
+    const [snapTrainings, snapPartite, snapTornei] = await Promise.all([
+      get(ref(db, "trainings")),
+      get(ref(db, "partite")),
+      get(ref(db, "tornei"))
+    ]);
+    const trainings = snapTrainings.exists() ? snapTrainings.val() : {};
+    const partite = snapPartite.exists() ? snapPartite.val() : {};
+    const tornei = snapTornei.exists() ? snapTornei.val() : {};
 
-    const oggi = new Date().toISOString().split("T")[0];
-    const ids = Object.keys(trainings)
-      .filter(id => trainings[id].data >= oggi)
-      .sort((a, b) => trainings[a].data.localeCompare(trainings[b].data))
-      .slice(0, 3);
+    const oggi = isoLocale(new Date());
+    const eventi = [];
 
-    if (ids.length === 0) {
-      prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessun allenamento futuro in programma.</p>`;
+    Object.keys(trainings).forEach(id => {
+      const t = trainings[id];
+      if (t.data >= oggi) eventi.push({ tipo: "allenamento", icona: "📋", data: t.data, ora: t.ora, titolo: t.titolo || "Allenamento", extra: t.luogo, link: `allenamenti.html?id=${id}` });
+    });
+
+    Object.keys(partite).forEach(id => {
+      const p = partite[id];
+      if (p.data >= oggi) eventi.push({ tipo: "partita", icona: "⚽", data: p.data, ora: p.orarioInizio, titolo: `vs ${p.avversario || "?"}`, extra: p.campo, link: `calendario.html?data=${p.data}` });
+    });
+
+    Object.keys(tornei).forEach(id => {
+      const t = tornei[id];
+      if (t.data >= oggi) eventi.push({ tipo: "torneo", icona: "🏆", data: t.data, ora: "", titolo: t.titolo || "Torneo", extra: t.luogo, link: `calendario.html?data=${t.data}` });
+    });
+
+    eventi.sort((a, b) => a.data.localeCompare(b.data));
+    const prossimi = eventi.slice(0, 3);
+
+    if (prossimi.length === 0) {
+      prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessun evento futuro in programma.</p>`;
       return;
     }
 
-    prossimoAllenamentoDiv.innerHTML = ids.map(id => {
-      const t = trainings[id];
-      return `
-        <a class="mini-card" href="allenamenti.html?id=${id}">
-          <h3>${t.titolo || "Allenamento"}</h3>
-          <div class="mini-meta">📅 ${formattaData(t.data)} · ore ${t.ora || "--"} · 📍 ${t.luogo || "-"}</div>
-        </a>
-      `;
-    }).join("");
+    prossimoAllenamentoDiv.innerHTML = prossimi.map(ev => `
+      <a class="mini-card" href="${ev.link}">
+        <h3>${ev.icona} ${ev.titolo}</h3>
+        <div class="mini-meta">📅 ${formattaData(ev.data)}${ev.ora ? " · ore " + ev.ora : ""}${ev.extra ? " · 📍 " + ev.extra : ""}</div>
+      </a>
+    `).join("");
   } catch (err) {
     console.error(err);
     prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
@@ -123,5 +150,5 @@ async function caricaNotizie() {
 
 mostraDataOggi();
 caricaVisiteScadenza();
-caricaProssimiAllenamenti();
+caricaProssimiEventi();
 caricaNotizie();

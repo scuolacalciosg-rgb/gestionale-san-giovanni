@@ -121,6 +121,15 @@ function formattaData(dataStr) {
   return `${giorno}/${mese}/${anno}`;
 }
 
+// Converte una data in "YYYY-MM-DD" usando le componenti LOCALI (non UTC),
+// per evitare lo sfasamento di un giorno vicino alla mezzanotte in Italia
+function isoLocale(d) {
+  const anno = d.getFullYear();
+  const mese = String(d.getMonth() + 1).padStart(2, "0");
+  const giorno = String(d.getDate()).padStart(2, "0");
+  return `${anno}-${mese}-${giorno}`;
+}
+
 // Recupera la descrizione di un esercizio: prima quella salvata nell'allenamento,
 // altrimenti la cerca nella libreria per nome (utile per allenamenti creati prima di questa funzione)
 function trovaDescrizioneEsercizio(nomeEsercizio, descSalvata) {
@@ -157,7 +166,7 @@ function renderLista() {
     gruppi[chiaveMese].push(id);
   });
 
-  const meseCorrente = new Date().toISOString().slice(0, 7);
+  const meseCorrente = isoLocale(new Date()).slice(0, 7);
   const chiaviMesi = Object.keys(gruppi).sort();
 
   listaAllenamenti.innerHTML = chiaviMesi.map(chiaveMese => {
@@ -170,7 +179,7 @@ function renderLista() {
       const a = allenamentiCache[id];
       const esercizi = a.esercizi || [];
       const durataTotale = esercizi.reduce((s, e) => s + Number(e.dur || 0), 0);
-      const oggi = new Date().toISOString().split("T")[0];
+      const oggi = isoLocale(new Date());
       const futuro = a.data >= oggi;
       return `
         <div class="allenamento-card" data-id="${id}" style="${futuro ? "border-left:4px solid var(--verde);" : "opacity:0.85;"}">

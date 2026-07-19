@@ -190,7 +190,9 @@ function apriNuovoInfortunio() {
   if (giocatoreSelezionato && playersCache[giocatoreSelezionato]) {
     campoGiocatoreInf.value = giocatoreSelezionato;
   }
-  document.getElementById("campoDataInizioInf").value = new Date().toISOString().split("T")[0];
+  const oggi = new Date();
+  const dataOggiLocale = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, "0")}-${String(oggi.getDate()).padStart(2, "0")}`;
+  document.getElementById("campoDataInizioInf").value = dataOggiLocale;
   document.getElementById("campoDataFineInf").value = "";
   document.getElementById("campoTipoInf").value = "";
   document.getElementById("campoNoteInf").value = "";

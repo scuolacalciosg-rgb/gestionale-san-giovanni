@@ -35,7 +35,7 @@ let partiteCache = {};
 let torneiCache = {};
 
 let meseVisualizzato = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
-let giornoSelezionato = new Date().toISOString().split("T")[0];
+let giornoSelezionato = isoDaData(new Date());
 
 let eventoInModifica = null; // { tipo, id } oppure null per nuovo
 
@@ -58,7 +58,12 @@ function convertiDataItalianaISO(dataItaliana) {
 }
 
 function isoDaData(d) {
-  return d.toISOString().split("T")[0];
+  // Uso le componenti locali (non UTC) per evitare lo sfasamento di un giorno
+  // che si verifica in Italia con toISOString() vicino alla mezzanotte
+  const anno = d.getFullYear();
+  const mese = String(d.getMonth() + 1).padStart(2, "0");
+  const giorno = String(d.getDate()).padStart(2, "0");
+  return `${anno}-${mese}-${giorno}`;
 }
 
 // ============================================
@@ -672,5 +677,15 @@ btnEliminaEvento.addEventListener("click", eliminaEvento);
 overlayEvento.addEventListener("click", (e) => {
   if (e.target === overlayEvento) chiudiModale();
 });
+
+// Se arrivo da un link diretto (es. dalla Dashboard) con ?data=AAAA-MM-GG,
+// apro il calendario direttamente su quel giorno/mese
+const parametriURL = new URLSearchParams(window.location.search);
+const dataDaAprire = parametriURL.get("data");
+if (dataDaAprire && /^\d{4}-\d{2}-\d{2}$/.test(dataDaAprire)) {
+  giornoSelezionato = dataDaAprire;
+  const [annoP, meseP] = dataDaAprire.split("-").map(Number);
+  meseVisualizzato = new Date(annoP, meseP - 1, 1);
+}
 
 caricaTutto();

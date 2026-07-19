@@ -163,7 +163,9 @@ function apriNuovoRapporto() {
   if (giocatoreSelezionato && playersCache[giocatoreSelezionato]) {
     campoGiocatoreRapp.value = giocatoreSelezionato;
   }
-  document.getElementById("campoDataRapp").value = new Date().toISOString().split("T")[0];
+  const oggi = new Date();
+  const dataOggiLocale = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, "0")}-${String(oggi.getDate()).padStart(2, "0")}`;
+  document.getElementById("campoDataRapp").value = dataOggiLocale;
   document.getElementById("campoContestoRapp").value = "";
   document.getElementById("campoVotoRapp").value = 3;
   document.getElementById("campoComportamentoRapp").value = "";
