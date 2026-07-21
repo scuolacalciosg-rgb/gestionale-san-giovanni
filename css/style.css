@@ -305,9 +305,9 @@ body {
 }
 
 .container {
-  max-width: 1400px;
-  margin: 0;
-  padding: 28px 32px;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 32px 40px;
   width: 100%;
 }
 
@@ -800,8 +800,8 @@ body {
   background: var(--bianco);
   border-radius: 10px;
   box-shadow: var(--ombra);
-  padding: 14px;
-  margin-bottom: 10px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
   border-left: 3px solid var(--rosso);
   text-decoration: none;
   color: inherit;
@@ -814,13 +814,13 @@ body {
 }
 
 .mini-card h3 {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--testo);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .mini-card .mini-meta {
-  font-size: 0.8rem;
+  font-size: 0.88rem;
   color: var(--testo-chiaro);
 }
 
