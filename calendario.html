@@ -58,6 +58,7 @@
       <span><i class="dot dot-allenamento"></i> Allenamento</span>
       <span><i class="dot dot-partita"></i> Partita</span>
       <span><i class="dot dot-torneo"></i> Torneo</span>
+      <span><i class="dot dot-riunione"></i> Riunione</span>
       <span><i class="dot dot-comunicazione"></i> Comunicazione</span>
     </div>
 
@@ -86,6 +87,7 @@
         <select id="campoTipoEvento">
           <option value="partita">⚽ Partita</option>
           <option value="torneo">🏆 Torneo</option>
+          <option value="riunione">🗣️ Riunione</option>
           <option value="comunicazione">📰 Comunicazione</option>
           <option value="allenamento">📋 Allenamento</option>
         </select>
@@ -97,6 +99,32 @@
           Gli allenamenti si creano dalla sezione dedicata, dove trovi anche la libreria esercizi.
         </p>
         <a href="allenamenti.html" class="btn-primary" style="display:inline-block; text-decoration:none;">Vai alla sezione Allenamenti →</a>
+      </div>
+
+      <!-- ===== SEZIONE RIUNIONE ===== -->
+      <div id="sezioneRiunione" style="display:none;">
+        <div class="campo">
+          <label>Titolo</label>
+          <input type="text" id="campoTitoloRiu" placeholder="Es. Riunione staff tecnico">
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div class="campo" style="flex:1;">
+            <label>Data</label>
+            <input type="date" id="campoDataRiu">
+          </div>
+          <div class="campo" style="flex:1;">
+            <label>Ora</label>
+            <input type="time" id="campoOraRiu">
+          </div>
+        </div>
+        <div class="campo">
+          <label>Luogo</label>
+          <input type="text" id="campoLuogoRiu" placeholder="Es. Sede ASD San Giovanni">
+        </div>
+        <div class="campo">
+          <label>Note</label>
+          <textarea id="campoNoteRiu" rows="3" placeholder="Ordine del giorno, partecipanti..."></textarea>
+        </div>
       </div>
 
       <!-- ===== SEZIONE COMUNICAZIONE ===== -->
