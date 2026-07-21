@@ -766,6 +766,22 @@ body {
   align-items: start;
 }
 
+.dash-colonne-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+@media (max-width: 1000px) {
+  .dash-colonne-3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 750px) {
+  .dash-colonne-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dash-colonna .section-title {
   margin-top: 0;
 }
@@ -1049,6 +1065,7 @@ body {
 .dot-allenamento { background: var(--verde); }
 .dot-partita { background: var(--rosso); }
 .dot-torneo { background: #c99a2e; }
+.dot-riunione { background: #7b52ab; }
 .dot-comunicazione { background: #2e6fc9; }
 
 .calendario-intestazione-giorni {
@@ -1123,6 +1140,7 @@ body {
 .evento-riga-giorno.tipo-allenamento { border-left-color: var(--verde); }
 .evento-riga-giorno.tipo-partita { border-left-color: var(--rosso); }
 .evento-riga-giorno.tipo-torneo { border-left-color: #c99a2e; }
+.evento-riga-giorno.tipo-riunione { border-left-color: #7b52ab; }
 .evento-riga-giorno.tipo-comunicazione { border-left-color: #2e6fc9; }
 
 .evento-riga-giorno .er-header {
