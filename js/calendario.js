@@ -639,7 +639,8 @@ async function salvaEvento() {
         golNostri: document.getElementById("campoGolNostriPar").value !== "" ? Number(document.getElementById("campoGolNostriPar").value) : null,
         golAvversario: document.getElementById("campoGolAvversarioPar").value !== "" ? Number(document.getElementById("campoGolAvversarioPar").value) : null,
         convocati: leggiConvocati(listaConvocatiPartita),
-        formazione: leggiFormazione()
+        formazione: leggiFormazione(),
+        ts: Date.now()
       };
       if (!dati.avversario || !dati.data) { alert("Avversario e data sono obbligatori."); return; }
       if (eventoInModifica?.tipo === "partita") {
@@ -658,7 +659,8 @@ async function salvaEvento() {
         data: document.getElementById("campoDataTor").value,
         luogo: document.getElementById("campoLuogoTor").value.trim(),
         note: document.getElementById("campoNoteTor").value.trim(),
-        partite: leggiPartiteTorneo()
+        partite: leggiPartiteTorneo(),
+        ts: Date.now()
       };
       if (!dati.titolo || !dati.data) { alert("Nome torneo e data sono obbligatori."); return; }
       if (eventoInModifica?.tipo === "torneo") {
@@ -677,7 +679,8 @@ async function salvaEvento() {
         data: document.getElementById("campoDataRiu").value,
         ora: document.getElementById("campoOraRiu").value,
         luogo: document.getElementById("campoLuogoRiu").value.trim(),
-        note: document.getElementById("campoNoteRiu").value.trim()
+        note: document.getElementById("campoNoteRiu").value.trim(),
+        ts: Date.now()
       };
       if (!dati.titolo || !dati.data) { alert("Titolo e data sono obbligatori."); return; }
       if (eventoInModifica?.tipo === "riunione") {

@@ -505,7 +505,8 @@ async function salvaAllenamento() {
     luogo: document.getElementById("campoLuogo").value.trim(),
     tipo: document.getElementById("campoTipo").value,
     note: document.getElementById("campoNote").value.trim(),
-    esercizi: leggiEserciziDalForm()
+    esercizi: leggiEserciziDalForm(),
+    ts: Date.now()
   };
 
   if (!dati.titolo || !dati.data) {
