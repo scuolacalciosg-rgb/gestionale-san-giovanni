@@ -33,6 +33,7 @@ let trainingsCache = {};
 let newsCache = {};
 let partiteCache = {};
 let torneiCache = {};
+let riunioniCache = {};
 
 let meseVisualizzato = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
 let giornoSelezionato = isoDaData(new Date());
@@ -71,18 +72,20 @@ function isoDaData(d) {
 // ============================================
 async function caricaTutto() {
   try {
-    const [snapPlayers, snapTrainings, snapNews, snapPartite, snapTornei] = await Promise.all([
+    const [snapPlayers, snapTrainings, snapNews, snapPartite, snapTornei, snapRiunioni] = await Promise.all([
       get(ref(db, "players")),
       get(ref(db, "trainings")),
       get(ref(db, "news")),
       get(ref(db, "partite")),
-      get(ref(db, "tornei"))
+      get(ref(db, "tornei")),
+      get(ref(db, "riunioni"))
     ]);
     playersCache = snapPlayers.exists() ? snapPlayers.val() : {};
     trainingsCache = snapTrainings.exists() ? snapTrainings.val() : {};
     newsCache = snapNews.exists() ? snapNews.val() : {};
     partiteCache = snapPartite.exists() ? snapPartite.val() : {};
     torneiCache = snapTornei.exists() ? snapTornei.val() : {};
+    riunioniCache = snapRiunioni.exists() ? snapRiunioni.val() : {};
 
     renderCalendario();
     renderEventiGiorno();
@@ -125,6 +128,11 @@ function costruisciMappaEventi() {
   Object.keys(torneiCache).forEach(id => {
     const t = torneiCache[id];
     aggiungi(t.data, { tipo: "torneo", id, titolo: t.titolo || "Torneo", extra: t.luogo });
+  });
+
+  Object.keys(riunioniCache).forEach(id => {
+    const r = riunioniCache[id];
+    aggiungi(r.data, { tipo: "riunione", id, titolo: r.titolo || "Riunione", ora: r.ora, extra: r.luogo });
   });
 
   return mappa;
@@ -201,8 +209,8 @@ function renderEventiGiorno() {
     return;
   }
 
-  const iconeTipo = { allenamento: "📋", partita: "⚽", torneo: "🏆", comunicazione: "📰" };
-  const nomiTipo = { allenamento: "Allenamento", partita: "Partita", torneo: "Torneo", comunicazione: "Comunicazione" };
+  const iconeTipo = { allenamento: "📋", partita: "⚽", torneo: "🏆", riunione: "🗣️", comunicazione: "📰" };
+  const nomiTipo = { allenamento: "Allenamento", partita: "Partita", torneo: "Torneo", riunione: "Riunione", comunicazione: "Comunicazione" };
 
   listaEventiGiorno.innerHTML = eventi.map(ev => `
     <div class="evento-riga-giorno tipo-${ev.tipo}" data-tipo="${ev.tipo}" data-id="${ev.id}">
@@ -228,6 +236,8 @@ function renderEventiGiorno() {
         apriModificaPartita(id);
       } else if (tipo === "torneo") {
         apriModificaTorneo(id);
+      } else if (tipo === "riunione") {
+        apriModificaRiunione(id);
       }
     });
   });
@@ -451,7 +461,8 @@ const sezioni = {
   allenamento: document.getElementById("sezioneAllenamento"),
   comunicazione: document.getElementById("sezioneComunicazione"),
   partita: document.getElementById("sezionePartita"),
-  torneo: document.getElementById("sezioneTorneo")
+  torneo: document.getElementById("sezioneTorneo"),
+  riunione: document.getElementById("sezioneRiunione")
 };
 
 function mostraSezione(tipo) {
@@ -494,6 +505,12 @@ function apriNuovoEvento() {
   document.getElementById("campoBodyCom").value = "";
   document.getElementById("campoAutoreCom").value = "";
 
+  document.getElementById("campoTitoloRiu").value = "";
+  document.getElementById("campoDataRiu").value = giornoSelezionato;
+  document.getElementById("campoOraRiu").value = "";
+  document.getElementById("campoLuogoRiu").value = "";
+  document.getElementById("campoNoteRiu").value = "";
+
   btnEliminaEvento.style.display = "none";
   overlayEvento.classList.add("attivo");
 }
@@ -534,6 +551,24 @@ function apriModificaComunicazione(id) {
   document.getElementById("campoDataCom").value = convertiDataItalianaISO(n.data);
   document.getElementById("campoBodyCom").value = n.body || "";
   document.getElementById("campoAutoreCom").value = n.autore || "";
+
+  btnEliminaEvento.style.display = "inline-block";
+  overlayEvento.classList.add("attivo");
+}
+
+function apriModificaRiunione(id) {
+  eventoInModifica = { tipo: "riunione", id };
+  const r = riunioniCache[id];
+  modaleTitoloEvento.textContent = "Modifica riunione";
+  campoTipoEvento.value = "riunione";
+  campoTipoEvento.disabled = true;
+  mostraSezione("riunione");
+
+  document.getElementById("campoTitoloRiu").value = r.titolo || "";
+  document.getElementById("campoDataRiu").value = r.data || "";
+  document.getElementById("campoOraRiu").value = r.ora || "";
+  document.getElementById("campoLuogoRiu").value = r.luogo || "";
+  document.getElementById("campoNoteRiu").value = r.note || "";
 
   btnEliminaEvento.style.display = "inline-block";
   overlayEvento.classList.add("attivo");
@@ -636,6 +671,25 @@ async function salvaEvento() {
       }
     }
 
+    else if (tipo === "riunione") {
+      const dati = {
+        titolo: document.getElementById("campoTitoloRiu").value.trim(),
+        data: document.getElementById("campoDataRiu").value,
+        ora: document.getElementById("campoOraRiu").value,
+        luogo: document.getElementById("campoLuogoRiu").value.trim(),
+        note: document.getElementById("campoNoteRiu").value.trim()
+      };
+      if (!dati.titolo || !dati.data) { alert("Titolo e data sono obbligatori."); return; }
+      if (eventoInModifica?.tipo === "riunione") {
+        await update(ref(db, `riunioni/${eventoInModifica.id}`), dati);
+        riunioniCache[eventoInModifica.id] = dati;
+      } else {
+        const nuovoRef = push(ref(db, "riunioni"));
+        await set(nuovoRef, dati);
+        riunioniCache[nuovoRef.key] = dati;
+      }
+    }
+
     renderCalendario();
     renderEventiGiorno();
     chiudiModale();
@@ -652,12 +706,14 @@ async function eliminaEvento() {
   if (!confirm("Sei sicuro di voler eliminare questo evento? L'operazione è irreversibile.")) return;
 
   const { tipo, id } = eventoInModifica;
-  const nodo = tipo === "partita" ? "partite" : tipo === "torneo" ? "tornei" : "news";
+  const mappaNodi = { partita: "partite", torneo: "tornei", riunione: "riunioni", comunicazione: "news" };
+  const nodo = mappaNodi[tipo] || "news";
 
   try {
     await remove(ref(db, `${nodo}/${id}`));
     if (tipo === "partita") delete partiteCache[id];
     if (tipo === "torneo") delete torneiCache[id];
+    if (tipo === "riunione") delete riunioniCache[id];
     if (tipo === "comunicazione") delete newsCache[id];
     renderCalendario();
     renderEventiGiorno();

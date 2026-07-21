@@ -7,6 +7,7 @@ collegaLogout();
 const dataOggiEl = document.getElementById("dataOggi");
 const visiteScadenzaDiv = document.getElementById("visiteScadenza");
 const prossimoAllenamentoDiv = document.getElementById("prossimoAllenamento");
+const prossimePartiteDiv = document.getElementById("prossimePartite");
 const ultimeNotizieDiv = document.getElementById("ultimeNotizie");
 
 function formattaData(dataStr) {
@@ -69,35 +70,28 @@ async function caricaVisiteScadenza() {
 }
 
 // ============================================
-// PROSSIMI 3 EVENTI (allenamenti + partite + tornei, mini card cliccabili)
+// PROSSIMI 3 EVENTI: Allenamenti + Riunioni (mini card cliccabili)
 // ============================================
 async function caricaProssimiEventi() {
   try {
-    const [snapTrainings, snapPartite, snapTornei] = await Promise.all([
+    const [snapTrainings, snapRiunioni] = await Promise.all([
       get(ref(db, "trainings")),
-      get(ref(db, "partite")),
-      get(ref(db, "tornei"))
+      get(ref(db, "riunioni"))
     ]);
     const trainings = snapTrainings.exists() ? snapTrainings.val() : {};
-    const partite = snapPartite.exists() ? snapPartite.val() : {};
-    const tornei = snapTornei.exists() ? snapTornei.val() : {};
+    const riunioni = snapRiunioni.exists() ? snapRiunioni.val() : {};
 
     const oggi = isoLocale(new Date());
     const eventi = [];
 
     Object.keys(trainings).forEach(id => {
       const t = trainings[id];
-      if (t.data >= oggi) eventi.push({ tipo: "allenamento", icona: "📋", data: t.data, ora: t.ora, titolo: t.titolo || "Allenamento", extra: t.luogo, link: `allenamenti.html?id=${id}` });
+      if (t.data >= oggi) eventi.push({ icona: "📋", data: t.data, ora: t.ora, titolo: t.titolo || "Allenamento", extra: t.luogo, link: `allenamenti.html?id=${id}` });
     });
 
-    Object.keys(partite).forEach(id => {
-      const p = partite[id];
-      if (p.data >= oggi) eventi.push({ tipo: "partita", icona: "⚽", data: p.data, ora: p.orarioInizio, titolo: `vs ${p.avversario || "?"}`, extra: p.campo, link: `calendario.html?data=${p.data}` });
-    });
-
-    Object.keys(tornei).forEach(id => {
-      const t = tornei[id];
-      if (t.data >= oggi) eventi.push({ tipo: "torneo", icona: "🏆", data: t.data, ora: "", titolo: t.titolo || "Torneo", extra: t.luogo, link: `calendario.html?data=${t.data}` });
+    Object.keys(riunioni).forEach(id => {
+      const r = riunioni[id];
+      if (r.data >= oggi) eventi.push({ icona: "🗣️", data: r.data, ora: r.ora, titolo: r.titolo || "Riunione", extra: r.luogo, link: `calendario.html?data=${r.data}` });
     });
 
     eventi.sort((a, b) => a.data.localeCompare(b.data));
@@ -117,6 +111,51 @@ async function caricaProssimiEventi() {
   } catch (err) {
     console.error(err);
     prossimoAllenamentoDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
+  }
+}
+
+// ============================================
+// PROSSIME 3 PARTITE: Partite + Tornei (mini card cliccabili)
+// ============================================
+async function caricaProssimePartite() {
+  try {
+    const [snapPartite, snapTornei] = await Promise.all([
+      get(ref(db, "partite")),
+      get(ref(db, "tornei"))
+    ]);
+    const partite = snapPartite.exists() ? snapPartite.val() : {};
+    const tornei = snapTornei.exists() ? snapTornei.val() : {};
+
+    const oggi = isoLocale(new Date());
+    const eventi = [];
+
+    Object.keys(partite).forEach(id => {
+      const p = partite[id];
+      if (p.data >= oggi) eventi.push({ icona: "⚽", data: p.data, ora: p.orarioInizio, titolo: `vs ${p.avversario || "?"}`, extra: p.campo, link: `calendario.html?data=${p.data}` });
+    });
+
+    Object.keys(tornei).forEach(id => {
+      const t = tornei[id];
+      if (t.data >= oggi) eventi.push({ icona: "🏆", data: t.data, ora: "", titolo: t.titolo || "Torneo", extra: t.luogo, link: `calendario.html?data=${t.data}` });
+    });
+
+    eventi.sort((a, b) => a.data.localeCompare(b.data));
+    const prossimi = eventi.slice(0, 3);
+
+    if (prossimi.length === 0) {
+      prossimePartiteDiv.innerHTML = `<p style="color:var(--testo-chiaro);">Nessuna partita futura in programma.</p>`;
+      return;
+    }
+
+    prossimePartiteDiv.innerHTML = prossimi.map(ev => `
+      <a class="mini-card" href="${ev.link}">
+        <h3>${ev.icona} ${ev.titolo}</h3>
+        <div class="mini-meta">📅 ${formattaData(ev.data)}${ev.ora ? " · ore " + ev.ora : ""}${ev.extra ? " · 📍 " + ev.extra : ""}</div>
+      </a>
+    `).join("");
+  } catch (err) {
+    console.error(err);
+    prossimePartiteDiv.innerHTML = `<p style="color:var(--rosso);">Errore: ${err.message}</p>`;
   }
 }
 
@@ -151,4 +190,5 @@ async function caricaNotizie() {
 mostraDataOggi();
 caricaVisiteScadenza();
 caricaProssimiEventi();
+caricaProssimePartite();
 caricaNotizie();
