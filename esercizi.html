@@ -45,7 +45,10 @@
   <div class="container">
     <div class="section-title">
       <h2>Libreria Esercizi</h2>
-      <button class="btn-primary" id="btnNuovoEsercizio">+ Nuovo esercizio</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-secondary" id="btnGeneraEsercizioAI">🤖 Genera con AI</button>
+        <button class="btn-primary" id="btnNuovoEsercizio">+ Nuovo esercizio</button>
+      </div>
     </div>
 
     <div style="display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap;">
@@ -120,6 +123,27 @@
         <button class="btn-danger" id="btnEliminaEsercizio" style="display:none;">Elimina</button>
         <button class="btn-secondary" id="btnAnnullaEsercizio">Annulla</button>
         <button class="btn-primary" id="btnSalvaEsercizio">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODALE GENERA ESERCIZIO CON AI ===== -->
+  <div class="overlay" id="overlayGeneraEsercizioAI">
+    <div class="modale" style="max-width:560px;">
+      <h2>🤖 Genera esercizio con AI</h2>
+
+      <div class="campo">
+        <label>Linee guida per l'AI</label>
+        <textarea id="campoLineeGuidaEsAI" rows="4" placeholder="Es: esercizio di riscaldamento di 10 minuti per Piccoli Amici, focus sulla coordinazione, con la palla tra i piedi."></textarea>
+      </div>
+
+      <button class="btn-primary" id="btnGeneraEsercizioAIAvvia" style="width:100%;">✨ Genera esercizio</button>
+
+      <div id="risultatoEsercizioAI" style="margin-top:16px;"></div>
+
+      <div id="azioniRisultatoEsercizioAI" style="display:none; margin-top:14px;" class="modale-azioni">
+        <button class="btn-secondary" id="btnAnnullaGeneraEsercizioAI">Chiudi</button>
+        <button class="btn-primary" id="btnUsaEsercizioAI">Usa questo esercizio →</button>
       </div>
     </div>
   </div>
