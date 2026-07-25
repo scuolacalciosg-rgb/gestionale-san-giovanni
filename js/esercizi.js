@@ -1,5 +1,6 @@
 import { proteggiPagina, collegaLogout } from "./auth-guard.js";
 import { db, ref, get, set, push, update, remove } from "./firebase-config.js";
+import { chiamaAI, estraiJSON } from "./ai.js";
 
 await proteggiPagina();
 collegaLogout();
@@ -59,7 +60,6 @@ function renderLista() {
     return;
   }
 
-  // Raggruppo per categoria
   const gruppi = {};
   ids.forEach(id => {
     const cat = eserciziCache[id].cat || "Altro";
@@ -67,7 +67,6 @@ function renderLista() {
     gruppi[cat].push(id);
   });
 
-  // Ordino le categorie secondo l'ordine standard, poi eventuali categorie extra in fondo
   const categorieOrdinate = [
     ...ORDINE_CATEGORIE.filter(c => gruppi[c]),
     ...Object.keys(gruppi).filter(c => !ORDINE_CATEGORIE.includes(c))
@@ -100,7 +99,6 @@ function renderLista() {
     `;
   }).join("");
 
-  // Click per espandere/chiudere la descrizione
   listaEsercizi.querySelectorAll(".esercizio-lista-riga").forEach(riga => {
     riga.querySelector(".riga-header").addEventListener("click", () => {
       riga.classList.toggle("espanso");
@@ -256,6 +254,97 @@ btnSalvaEsercizio.addEventListener("click", salvaEsercizio);
 btnEliminaEsercizio.addEventListener("click", eliminaEsercizio);
 overlayEsercizio.addEventListener("click", (e) => {
   if (e.target === overlayEsercizio) chiudiModale();
+});
+
+// ============================================
+// GENERA ESERCIZIO SINGOLO CON AI
+// ============================================
+const overlayGeneraEsercizioAI = document.getElementById("overlayGeneraEsercizioAI");
+const btnGeneraEsercizioAI = document.getElementById("btnGeneraEsercizioAI");
+const btnAnnullaGeneraEsercizioAI = document.getElementById("btnAnnullaGeneraEsercizioAI");
+const btnGeneraEsercizioAIAvvia = document.getElementById("btnGeneraEsercizioAIAvvia");
+const btnUsaEsercizioAI = document.getElementById("btnUsaEsercizioAI");
+const campoLineeGuidaEsAI = document.getElementById("campoLineeGuidaEsAI");
+const risultatoEsercizioAI = document.getElementById("risultatoEsercizioAI");
+const azioniRisultatoEsercizioAI = document.getElementById("azioniRisultatoEsercizioAI");
+
+let esercizioGeneratoAI = null;
+
+btnGeneraEsercizioAI.addEventListener("click", () => {
+  campoLineeGuidaEsAI.value = "";
+  risultatoEsercizioAI.innerHTML = "";
+  azioniRisultatoEsercizioAI.style.display = "none";
+  esercizioGeneratoAI = null;
+  overlayGeneraEsercizioAI.classList.add("attivo");
+});
+
+btnAnnullaGeneraEsercizioAI.addEventListener("click", () => {
+  overlayGeneraEsercizioAI.classList.remove("attivo");
+});
+
+overlayGeneraEsercizioAI.addEventListener("click", (e) => {
+  if (e.target === overlayGeneraEsercizioAI) overlayGeneraEsercizioAI.classList.remove("attivo");
+});
+
+btnGeneraEsercizioAIAvvia.addEventListener("click", async () => {
+  const lineeGuida = campoLineeGuidaEsAI.value.trim();
+  if (!lineeGuida) {
+    alert("Scrivi qualche linea guida per l'AI prima di generare.");
+    return;
+  }
+
+  btnGeneraEsercizioAIAvvia.disabled = true;
+  btnGeneraEsercizioAIAvvia.textContent = "Generazione in corso...";
+  risultatoEsercizioAI.innerHTML = `<p style="color:var(--testo-chiaro);">🤖 Sto pensando all'esercizio...</p>`;
+  azioniRisultatoEsercizioAI.style.display = "none";
+
+  try {
+    const promptSistema = `Sei un assistente esperto di metodologia giovanile del calcio per la categoria "Primi Calci" (bambini di 6-7 anni), ispirato alle metodologie delle scuole calcio di Atalanta, Milan e Juventus.
+Genera UN SINGOLO esercizio di allenamento in base alle indicazioni del coach.
+Rispondi SOLO con un oggetto JSON valido, senza testo prima o dopo, con esattamente questa struttura:
+{"nome": "...", "cat": "Riscaldamento|Velocità|Coordinativo|Passaggi|Conduzione|Tiro|Situazioni", "dur": "15", "players": "10", "desc": "..."}
+La descrizione deve essere chiara e pratica, adatta a bambini di 6-7 anni: obiettivo e svolgimento in poche frasi, scritte su una sola riga senza andare a capo. Il campo "players" indica il numero indicativo di giocatori coinvolti (lascialo vuoto se non pertinente).`;
+
+    const promptUtente = `Linee guida del coach: ${lineeGuida}`;
+
+    const rispostaTesto = await chiamaAI(promptSistema, promptUtente);
+    const dati = estraiJSON(rispostaTesto);
+
+    if (!dati.nome) {
+      throw new Error("L'AI non ha generato un esercizio valido. Riprova.");
+    }
+
+    esercizioGeneratoAI = dati;
+
+    risultatoEsercizioAI.innerHTML = `
+      <div class="esercizio-lista-riga espanso" style="cursor:default;">
+        <div class="riga-header">
+          <span class="nome-es">${dati.nome}</span>
+          <span class="meta-es">⏱️ ${dati.dur || "-"}' ${dati.players ? "· 👥 " + dati.players : ""}</span>
+        </div>
+        <div class="desc-es" style="display:block;">${dati.desc || ""}</div>
+        <div class="desc-es" style="display:block;"><span class="tag-cat">${dati.cat || "-"}</span></div>
+      </div>
+    `;
+    azioniRisultatoEsercizioAI.style.display = "flex";
+  } catch (err) {
+    risultatoEsercizioAI.innerHTML = `<p style="color:var(--rosso);">${err.message}</p>`;
+  } finally {
+    btnGeneraEsercizioAIAvvia.disabled = false;
+    btnGeneraEsercizioAIAvvia.textContent = "✨ Genera esercizio";
+  }
+});
+
+btnUsaEsercizioAI.addEventListener("click", () => {
+  if (!esercizioGeneratoAI) return;
+
+  overlayGeneraEsercizioAI.classList.remove("attivo");
+  apriNuovoEsercizio();
+  document.getElementById("campoNomeEs").value = esercizioGeneratoAI.nome || "";
+  document.getElementById("campoCatEs").value = esercizioGeneratoAI.cat || "Riscaldamento";
+  document.getElementById("campoDurEs").value = esercizioGeneratoAI.dur || 15;
+  document.getElementById("campoPlayersEs").value = esercizioGeneratoAI.players || "";
+  document.getElementById("campoDescEs").value = esercizioGeneratoAI.desc || "";
 });
 
 caricaEsercizi();
